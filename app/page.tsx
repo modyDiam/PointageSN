@@ -23,13 +23,12 @@ import { Toast } from "@/components/Toast";
 import { Sidebar } from "@/components/Sidebar";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { DashboardView } from "@/components/DashboardView";
-import { StatsSummaryBar } from "@/components/StatsSummaryBar";
-import { StudentListTable } from "@/components/StudentListTable";
+import { AttendanceView } from "@/components/AttendanceView";
 import { SummaryModal } from "@/components/SummaryModal";
 import { ImportModal } from "@/components/ImportModal";
 import { SettingsModal } from "@/components/SettingsModal";
 import { MonthlyRegisterView } from "@/components/MonthlyRegisterView";
-import { Copy, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 const STORAGE_KEY_STUDENTS = "pointagesn_students_v3";
 const STORAGE_KEY_ATTENDANCE = "pointagesn_attendance_v3";
@@ -51,7 +50,6 @@ export default function PointageSNApp() {
   const [selectedSlot, setSelectedSlot] = useState<string>(TIME_SLOTS[0]);
   const [attendance, setAttendance] = useState<AttendanceRecord>({});
   const [historySessions, setHistorySessions] = useState<AttendanceSession[]>([]);
-  const [searchQuery, setSearchQuery] = useState<string>("");
 
   // Settings
   const [settings, setSettings] = useState<SchoolSettings>({
@@ -255,40 +253,6 @@ export default function PointageSNApp() {
     showToast(`Tous marqués Présent (${selectedClass})`, "success");
   };
 
-  // Filtered students for selected class & search
-  const currentClassStudents = useMemo(() => {
-    return students.filter((s) => {
-      const inClass = s.classLevel === selectedClass;
-      if (!inClass) return false;
-      if (!searchQuery.trim()) return true;
-
-      const q = searchQuery.toLowerCase().trim();
-      const fullName = `${s.firstName} ${s.lastName}`.toLowerCase();
-      const parent = s.parentName.toLowerCase();
-      return fullName.includes(q) || parent.includes(q);
-    });
-  }, [students, selectedClass, searchQuery]);
-
-  // Live stats for selected class
-  const classStats: ClassStats = useMemo(() => {
-    const allStudentsInClass = students.filter((s) => s.classLevel === selectedClass);
-    const total = allStudentsInClass.length;
-    let present = 0;
-    let absent = 0;
-    let retard = 0;
-
-    allStudentsInClass.forEach((s) => {
-      const status = attendance[s.id] || "PRESENT";
-      if (status === "PRESENT") present++;
-      else if (status === "ABSENT") absent++;
-      else if (status === "RETARD") retard++;
-    });
-
-    const attendanceRate =
-      total > 0 ? Math.round(((present + retard) / total) * 100) : 100;
-    return { total, present, absent, retard, attendanceRate };
-  }, [students, selectedClass, attendance]);
-
   // Jump from Dashboard to specific class call
   const handleSelectClassAndCall = (className: string) => {
     setSelectedClass(className);
@@ -338,7 +302,7 @@ export default function PointageSNApp() {
 
     try {
       await navigator.clipboard.writeText(reportText);
-      showToast("Rapport copié & séance enregistrée dans le registre ! 📋", "success");
+      showToast("Rapport officiel copié & archivé dans le registre ! 📋", "success");
     } catch (err) {
       console.error(err);
       showToast("Séance enregistrée dans le registre !", "info");
@@ -369,7 +333,7 @@ export default function PointageSNApp() {
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
       />
 
-      {/* MAIN LAYOUT WRAPPER (With left padding for desktop sidebar) */}
+      {/* MAIN LAYOUT WRAPPER */}
       <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
         
         {/* DASHBOARD HEADER */}
@@ -405,100 +369,25 @@ export default function PointageSNApp() {
             />
           )}
 
-          {/* VIEW 2: FAIRE L'APPEL / POINTAGE DE SÉANCE */}
+          {/* VIEW 2: FAIRE L'APPEL / NOUVELLE EXPÉRIENCE POINTAGE */}
           {activeView === "ATTENDANCE" && (
-            <div className="space-y-3.5 animate-fade-in">
-              {/* Back to Dashboard bar */}
-              <div className="flex items-center justify-between gap-2">
-                <button
-                  type="button"
-                  onClick={() => setActiveView("DASHBOARD")}
-                  className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200/80 px-3 py-1.5 rounded-xl transition shadow-2xs"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Retour au Dashboard</span>
-                </button>
-
-                <span className="text-xs text-slate-500 font-medium hidden sm:inline">
-                  Créneau : <strong className="text-slate-800">{selectedSlot}</strong>
-                </span>
-              </div>
-
-              {/* Class Selection Tabs */}
-              <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 sm:pb-0">
-                <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-slate-200/90 shadow-2xs">
-                  {availableClasses.map((cls) => {
-                    const isSelected = selectedClass === cls;
-                    const count = students.filter((s) => s.classLevel === cls).length;
-
-                    return (
-                      <button
-                        key={cls}
-                        type="button"
-                        onClick={() => setSelectedClass(cls)}
-                        className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 whitespace-nowrap active:scale-95 ${
-                          isSelected
-                            ? "bg-navy-900 text-white shadow-xs font-bold"
-                            : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                        }`}
-                      >
-                        <span>Classe {cls}</span>
-                        <span
-                          className={`text-[10px] px-1.5 py-0.2 rounded-full tabular-nums ${
-                            isSelected
-                              ? "bg-white/20 text-white"
-                              : "bg-slate-100 text-slate-500"
-                          }`}
-                        >
-                          {count}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Live KPI & Search */}
-              <StatsSummaryBar
-                stats={classStats}
-                onMarkAllPresent={handleMarkAllClassPresent}
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-              />
-
-              {/* Student Roll Call Table */}
-              <StudentListTable
-                students={currentClassStudents}
-                attendance={attendance}
-                onStatusChange={handleStatusChange}
-                schoolName={settings.schoolName}
-                absentTemplate={settings.absentTemplate}
-                retardTemplate={settings.retardTemplate}
-              />
-
-              {/* Sticky Roll Call Actions */}
-              <div className="sticky bottom-3 z-30 pt-2">
-                <div className="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-2.5 sm:px-4 sm:py-3 shadow-modal flex items-center justify-between gap-3">
-                  <div className="text-xs text-slate-600 hidden sm:flex items-center gap-2">
-                    <span className="font-bold text-slate-900">Synthèse {selectedClass} :</span>
-                    <span className="text-emerald-700 font-semibold">{classStats.present} présents</span>
-                    <span>•</span>
-                    <span className="text-rose-700 font-semibold">{classStats.absent} absents</span>
-                    <span>•</span>
-                    <span className="text-amber-700 font-semibold">{classStats.retard} retards</span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={handleCloseAndCopyReport}
-                    className="w-full sm:w-auto ml-auto px-5 py-2 bg-navy-900 hover:bg-navy-800 text-white font-bold text-xs sm:text-sm rounded-xl shadow-xs transition-all active:scale-95 flex items-center justify-center gap-2"
-                  >
-                    <Copy className="w-4 h-4" />
-                    <span>Clôturer la séance & Copier le rapport</span>
-                  </button>
-                </div>
-              </div>
-            </div>
+            <AttendanceView
+              students={students}
+              availableClasses={availableClasses}
+              selectedClass={selectedClass}
+              onSelectClass={setSelectedClass}
+              selectedSlot={selectedSlot}
+              currentDateFormatted={currentDateFormatted}
+              attendance={attendance}
+              onStatusChange={handleStatusChange}
+              onMarkAllPresent={handleMarkAllClassPresent}
+              onCloseAndCopyReport={handleCloseAndCopyReport}
+              onBackToDashboard={() => setActiveView("DASHBOARD")}
+              schoolName={settings.schoolName}
+              absentTemplate={settings.absentTemplate}
+              retardTemplate={settings.retardTemplate}
+              onShowToast={showToast}
+            />
           )}
 
           {/* VIEW 3: REGISTRE MENSUEL */}
@@ -508,7 +397,7 @@ export default function PointageSNApp() {
                 <button
                   type="button"
                   onClick={() => setActiveView("DASHBOARD")}
-                  className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200/80 px-3 py-1.5 rounded-xl transition shadow-2xs"
+                  className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200/80 px-3 py-1.5 rounded-xl transition shadow-2xs"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   <span>Retour au Dashboard</span>

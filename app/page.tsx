@@ -15,18 +15,15 @@ import { SummaryModal } from "@/components/SummaryModal";
 import { Toast } from "@/components/Toast";
 import {
   Search,
-  Filter,
-  CheckCircle,
-  AlertTriangle,
-  Clock,
   ClipboardList,
-  Save,
+  CheckCheck,
   RotateCcw,
   Sparkles,
+  Users,
 } from "lucide-react";
 
-const STORAGE_KEY_ATTENDANCE = "pointagesn_attendance_v1";
-const STORAGE_KEY_SCHOOL = "pointagesn_school_v1";
+const STORAGE_KEY_ATTENDANCE = "pointagesn_attendance_v2";
+const STORAGE_KEY_SCHOOL = "pointagesn_school_v2";
 
 export default function PointageSNApp() {
   const [selectedClass, setSelectedClass] = useState<string>("6e A");
@@ -65,7 +62,6 @@ export default function PointageSNApp() {
       const savedAttendance = localStorage.getItem(STORAGE_KEY_ATTENDANCE);
       if (savedAttendance) {
         const parsed = JSON.parse(savedAttendance);
-        // Ensure every student has a status
         const merged: AttendanceRecord = getDefaultAttendance();
         Object.assign(merged, parsed);
         setAttendance(merged);
@@ -187,7 +183,7 @@ export default function PointageSNApp() {
   }, [currentClassStudents, attendance]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-emerald-500 selection:text-white">
+    <div className="min-h-screen bg-slate-50/70 text-slate-900 flex flex-col font-sans">
       {/* Toast Notification */}
       {toastInfo && (
         <Toast
@@ -203,8 +199,8 @@ export default function PointageSNApp() {
         onSchoolNameChange={handleSchoolNameChange}
       />
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-6 sm:px-6 space-y-6">
+      {/* Main Content */}
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-6 sm:px-6 space-y-6">
         
         {/* Class Selector Bar */}
         <ClassSelector
@@ -215,43 +211,43 @@ export default function PointageSNApp() {
           attendance={attendance}
         />
 
-        {/* Real-time Dashboard KPI */}
+        {/* Real-time KPI Metrics Dashboard */}
         <StatsDashboard
           stats={classStats}
           onMarkAllPresent={handleMarkAllClassPresent}
           onResetClassAttendance={handleResetClass}
         />
 
-        {/* Action Header & Search / Filters */}
+        {/* Search Bar and Quick Filter Tabs */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
           {/* Search bar */}
           <div className="relative flex-1 max-w-md">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder={`Rechercher un élève en ${selectedClass}...`}
+              placeholder={`Rechercher un élève ou tuteur en ${selectedClass}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition"
+              className="w-full bg-white border border-slate-200/90 rounded-xl pl-10 pr-4 py-2 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition shadow-2xs"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-700"
               >
                 Effacer
               </button>
             )}
           </div>
 
-          {/* Status Quick Filter Pills */}
+          {/* Filter Pills */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
             <button
               onClick={() => setStatusFilter("ALL")}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition border ${
                 statusFilter === "ALL"
-                  ? "bg-slate-800 text-white border-slate-600 shadow"
-                  : "bg-slate-900/60 text-slate-400 border-slate-800 hover:text-slate-200"
+                  ? "bg-slate-900 text-white border-slate-900 shadow-2xs"
+                  : "bg-white text-slate-600 border-slate-200/80 hover:bg-slate-50"
               }`}
             >
               Tous ({currentClassStudents.length})
@@ -260,8 +256,8 @@ export default function PointageSNApp() {
               onClick={() => setStatusFilter("ABSENT")}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition border ${
                 statusFilter === "ABSENT"
-                  ? "bg-rose-950/90 text-rose-300 border-rose-600 shadow"
-                  : "bg-slate-900/60 text-slate-400 border-slate-800 hover:text-rose-300"
+                  ? "bg-rose-600 text-white border-rose-600 shadow-2xs"
+                  : "bg-white text-rose-700 border-rose-200 hover:bg-rose-50"
               }`}
             >
               Absents ({classStats.absent})
@@ -270,8 +266,8 @@ export default function PointageSNApp() {
               onClick={() => setStatusFilter("RETARD")}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition border ${
                 statusFilter === "RETARD"
-                  ? "bg-amber-950/90 text-amber-300 border-amber-600 shadow"
-                  : "bg-slate-900/60 text-slate-400 border-slate-800 hover:text-amber-300"
+                  ? "bg-amber-500 text-white border-amber-500 shadow-2xs"
+                  : "bg-white text-amber-700 border-amber-200 hover:bg-amber-50"
               }`}
             >
               Retards ({classStats.retard})
@@ -280,8 +276,8 @@ export default function PointageSNApp() {
               onClick={() => setStatusFilter("PRESENT")}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition border ${
                 statusFilter === "PRESENT"
-                  ? "bg-emerald-950/90 text-emerald-300 border-emerald-600 shadow"
-                  : "bg-slate-900/60 text-slate-400 border-slate-800 hover:text-emerald-300"
+                  ? "bg-emerald-600 text-white border-emerald-600 shadow-2xs"
+                  : "bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50"
               }`}
             >
               Présents ({classStats.present})
@@ -289,7 +285,7 @@ export default function PointageSNApp() {
           </div>
         </div>
 
-        {/* Students List */}
+        {/* Student Cards Grid */}
         <div className="space-y-3">
           {filteredStudents.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
@@ -307,48 +303,47 @@ export default function PointageSNApp() {
               })}
             </div>
           ) : (
-            <div className="p-12 text-center bg-slate-900/50 rounded-2xl border border-slate-800/80">
-              <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center mx-auto mb-3 text-slate-400">
+            <div className="p-12 text-center bg-white rounded-2xl border border-slate-200/80 shadow-xs">
+              <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3 text-slate-400">
                 <Search className="w-6 h-6" />
               </div>
-              <h3 className="text-base font-bold text-slate-300">
-                Aucun élève trouvé
+              <h3 className="text-sm font-bold text-slate-800">
+                Aucun élève correspondant
               </h3>
               <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                Modifiez votre recherche ou réinitialisez le filtre de statut.
+                Modifiez votre recherche ou sélectionnez un autre filtre d'état.
               </p>
             </div>
           )}
         </div>
 
-        {/* Bottom Floating Bar / Session Closure Action */}
+        {/* Sticky Floating Bottom Bar for Session Closure */}
         <div className="sticky bottom-4 z-30 pt-4">
-          <div className="bg-slate-900/95 border border-slate-700/80 rounded-2xl p-3.5 sm:p-4 shadow-2xl backdrop-blur-xl flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-3.5 sm:p-4 shadow-elevation flex flex-col sm:flex-row items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-brand-600 shrink-0">
                 <ClipboardList className="w-5 h-5" />
               </div>
               <div>
-                <div className="text-sm font-bold text-white flex items-center gap-2">
+                <div className="text-sm font-bold text-slate-900 flex items-center gap-2">
                   <span>Séance en cours : {selectedClass}</span>
-                  <span className="text-xs text-emerald-400 font-semibold">
+                  <span className="text-xs font-semibold text-slate-500">
                     ({classStats.present} prés., {classStats.absent} abs., {classStats.retard} ret.)
                   </span>
                 </div>
-                <div className="text-xs text-slate-400 flex items-center gap-1.5">
-                  <Save className="w-3 h-3 text-emerald-400" />
-                  <span>Données automatiquement sauvegardées</span>
-                </div>
+                <p className="text-xs text-slate-500">
+                  Prêt à envoyer les alertes WhatsApp et générer le rapport pour la Direction
+                </p>
               </div>
             </div>
 
             <button
               type="button"
               onClick={() => setIsSummaryOpen(true)}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm tracking-wide shadow-xl shadow-emerald-900/40 transition active:scale-95 border border-emerald-400/40"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm tracking-wide shadow-sm transition active:scale-95"
             >
               <ClipboardList className="w-4 h-4" />
-              <span>Clôturer le pointage & Rapport</span>
+              <span>Clôturer la séance & Générer le rapport</span>
             </button>
           </div>
         </div>
@@ -366,14 +361,14 @@ export default function PointageSNApp() {
       />
 
       {/* Footer */}
-      <footer className="mt-auto py-6 border-t border-slate-900 text-center text-xs text-slate-500">
-        <div className="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="flex items-center gap-1.5 justify-center">
+      <footer className="mt-auto py-6 border-t border-slate-200 bg-white text-center text-xs text-slate-500">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p className="flex items-center gap-1.5 justify-center font-medium">
             <span>PointageSN</span>
             <span>🇸🇳</span>
-            <span>• Développé pour la vie scolaire au Sénégal</span>
+            <span>• Gestion Scolaire & Alertes WhatsApp</span>
           </p>
-          <p className="text-[11px] text-slate-600">
+          <p className="text-[11px] text-slate-400">
             Next.js 14 • Tailwind CSS • TypeScript
           </p>
         </div>

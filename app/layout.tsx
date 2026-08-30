@@ -2,9 +2,9 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PointageSN 🇸🇳 • Gestion des Absences & Alertes WhatsApp",
+  title: "PointageSN • Gestion Scolaire & Alertes WhatsApp",
   description:
-    "Application de pointage en temps réel et notification instantanée WhatsApp pour les écoles et lycées sénégalais.",
+    "Plateforme SaaS de gestion instantanée des présences scolaires et notification automatique WhatsApp pour les établissements d'enseignement.",
   keywords: [
     "PointageSN",
     "Sénégal",
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     "WhatsApp",
     "Vie scolaire",
   ],
-  authors: [{ name: "PointageSN Team" }],
+  authors: [{ name: "PointageSN" }],
 };
 
 export const viewport: Viewport = {
@@ -22,7 +22,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#020617",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({
@@ -31,8 +31,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className="dark">
-      <body className="bg-slate-950 text-slate-100 min-h-screen selection:bg-emerald-500 selection:text-white flex flex-col">
+    <html lang="fr" className="light">
+      <body className="bg-slate-50 text-slate-900 min-h-screen flex flex-col antialiased selection:bg-blue-600 selection:text-white">
         {children}
       </body>
     </html>

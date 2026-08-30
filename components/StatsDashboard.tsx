@@ -16,18 +16,18 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({
   onResetClassAttendance,
 }) => {
   return (
-    <div className="w-full bg-slate-900/90 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xl backdrop-blur-xl transition-all">
+    <div className="w-full space-y-3">
       {/* Header bar of Dashboard */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-800/80">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 px-1">
         <div>
-          <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-            <span>Tableau de bord en temps réel</span>
-            <span className="text-xs px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 font-medium">
-              Taux : {stats.attendanceRate}%
+          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+            <span>Aperçu de la séance</span>
+            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+              Assiduité : {stats.attendanceRate}%
             </span>
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Suivi instantané des présences, absences et retards de la séance
+          <p className="text-xs text-slate-500">
+            Suivi instantané des présences, absences et retards
           </p>
         </div>
 
@@ -36,7 +36,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({
           <button
             type="button"
             onClick={onMarkAllPresent}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-950/80 hover:bg-emerald-900/90 text-emerald-300 border border-emerald-700/50 text-xs font-semibold transition shadow-sm active:scale-95"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition shadow-xs active:scale-95"
             title="Marquer tous les élèves de la classe comme Présent"
           >
             <CheckCheck className="w-3.5 h-3.5 text-emerald-400" />
@@ -46,7 +46,7 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({
           <button
             type="button"
             onClick={onResetClassAttendance}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700/80 text-slate-300 border border-slate-700 text-xs font-medium transition active:scale-95"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-600 border border-slate-200 text-xs font-medium transition active:scale-95"
             title="Réinitialiser le pointage de cette classe"
           >
             <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
@@ -55,100 +55,99 @@ export const StatsDashboard: React.FC<StatsDashboardProps> = ({
         </div>
       </div>
 
-      {/* 4 Stats Cards */}
+      {/* KPI Cards Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {/* Total Élèves */}
-        <div className="bg-slate-950/60 border border-slate-800/90 rounded-xl p-3 sm:p-3.5 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-slate-800/80 flex items-center justify-center text-slate-300 shrink-0 border border-slate-700/50">
-            <Users className="w-5 h-5 text-slate-300" />
-          </div>
-          <div>
-            <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-              Total Classe
-            </div>
-            <div className="text-xl sm:text-2xl font-black text-white">
-              {stats.total}
+        {/* 1. Total Élèves (fond blanc, chiffre slate-900) */}
+        <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between text-slate-400 mb-2">
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Total Élèves
+            </span>
+            <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">
+              <Users className="w-4 h-4" />
             </div>
           </div>
+          <div className="text-2xl font-extrabold text-slate-900">
+            {stats.total}
+          </div>
+          <p className="text-[11px] text-slate-400 mt-0.5">Effectif inscrit</p>
         </div>
 
-        {/* Présents */}
-        <div className="bg-emerald-950/30 border border-emerald-800/40 rounded-xl p-3 sm:p-3.5 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-900/60 flex items-center justify-center text-emerald-300 shrink-0 border border-emerald-600/50">
-            <UserCheck className="w-5 h-5 text-emerald-400" />
-          </div>
-          <div>
-            <div className="text-[11px] font-semibold text-emerald-400/90 uppercase tracking-wider">
+        {/* 2. Présents (carte émeraude subtile) */}
+        <div className="bg-emerald-50/50 border border-emerald-100 rounded-2xl p-4 shadow-xs hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between text-emerald-600 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">
               Présents
-            </div>
-            <div className="text-xl sm:text-2xl font-black text-emerald-300">
-              {stats.present}
+            </span>
+            <div className="w-8 h-8 rounded-lg bg-emerald-100/80 flex items-center justify-center text-emerald-700">
+              <UserCheck className="w-4 h-4" />
             </div>
           </div>
+          <div className="text-2xl font-extrabold text-emerald-700">
+            {stats.present}
+          </div>
+          <p className="text-[11px] text-emerald-600/80 mt-0.5">En classe</p>
         </div>
 
-        {/* Absents (Badge Rouge) */}
-        <div className="bg-rose-950/40 border border-rose-800/50 rounded-xl p-3 sm:p-3.5 flex items-center gap-3 relative overflow-hidden">
+        {/* 3. Absences déclarées (carte rose/rouge subtile) */}
+        <div className="bg-rose-50/50 border border-rose-100 rounded-2xl p-4 shadow-xs hover:shadow-md transition-shadow relative overflow-hidden">
           {stats.absent > 0 && (
-            <div className="absolute top-0 right-0 w-2 h-2 rounded-bl bg-rose-500 animate-ping"></div>
+            <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500 animate-pulse"></div>
           )}
-          <div className="w-10 h-10 rounded-xl bg-rose-900/60 flex items-center justify-center text-rose-300 shrink-0 border border-rose-600/50 shadow-lg shadow-rose-950/50">
-            <UserX className="w-5 h-5 text-rose-400" />
-          </div>
-          <div>
-            <div className="text-[11px] font-semibold text-rose-300 uppercase tracking-wider flex items-center gap-1">
-              <span>Absents</span>
-              {stats.absent > 0 && (
-                <span className="px-1.5 py-0.2 rounded-full bg-rose-600 text-white text-[10px] font-bold">
-                  !
-                </span>
-              )}
-            </div>
-            <div className="text-xl sm:text-2xl font-black text-rose-400">
-              {stats.absent}
+          <div className="flex items-center justify-between text-rose-600 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">
+              Absents
+            </span>
+            <div className="w-8 h-8 rounded-lg bg-rose-100/80 flex items-center justify-center text-rose-700">
+              <UserX className="w-4 h-4" />
             </div>
           </div>
+          <div className="text-2xl font-extrabold text-rose-700">
+            {stats.absent}
+          </div>
+          <p className="text-[11px] text-rose-600/80 mt-0.5">À notifier</p>
         </div>
 
-        {/* Retards (Badge Orange) */}
-        <div className="bg-amber-950/30 border border-amber-800/40 rounded-xl p-3 sm:p-3.5 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-900/60 flex items-center justify-center text-amber-300 shrink-0 border border-amber-600/50">
-            <ClockAlert className="w-5 h-5 text-amber-400" />
-          </div>
-          <div>
-            <div className="text-[11px] font-semibold text-amber-400/90 uppercase tracking-wider">
+        {/* 4. Retards (carte ambre subtile) */}
+        <div className="bg-amber-50/50 border border-amber-100 rounded-2xl p-4 shadow-xs hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between text-amber-600 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider">
               Retards
-            </div>
-            <div className="text-xl sm:text-2xl font-black text-amber-400">
-              {stats.retard}
+            </span>
+            <div className="w-8 h-8 rounded-lg bg-amber-100/80 flex items-center justify-center text-amber-700">
+              <ClockAlert className="w-4 h-4" />
             </div>
           </div>
+          <div className="text-2xl font-extrabold text-amber-700">
+            {stats.retard}
+          </div>
+          <p className="text-[11px] text-amber-600/80 mt-0.5">Arrivées tardives</p>
         </div>
       </div>
 
-      {/* Progress Bar of Attendance */}
-      <div className="mt-4 pt-2">
-        <div className="flex justify-between items-center text-xs text-slate-400 mb-1.5">
-          <span>Assiduité de la classe</span>
-          <span className="font-semibold text-slate-300">
-            {stats.present + stats.retard} / {stats.total} présents & retards
-          </span>
+      {/* Modern Jauge d'assiduité */}
+      <div className="bg-white border border-slate-200/80 rounded-xl px-4 py-2.5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="flex items-center gap-3 text-xs text-slate-500">
+          <span className="font-medium text-slate-700">Progression d'assiduité :</span>
+          <div className="flex items-center gap-2">
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500"></span> Présents ({stats.present})</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500"></span> Retards ({stats.retard})</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-rose-500"></span> Absents ({stats.absent})</span>
+          </div>
         </div>
-        <div className="w-full h-2.5 bg-slate-950 rounded-full overflow-hidden flex border border-slate-800">
+
+        <div className="w-full sm:w-48 h-2 bg-slate-100 rounded-full overflow-hidden flex">
           <div
             style={{ width: `${stats.total ? (stats.present / stats.total) * 100 : 0}%` }}
             className="bg-emerald-500 transition-all duration-300"
-            title={`Présents: ${stats.present}`}
           />
           <div
             style={{ width: `${stats.total ? (stats.retard / stats.total) * 100 : 0}%` }}
             className="bg-amber-500 transition-all duration-300"
-            title={`Retards: ${stats.retard}`}
           />
           <div
             style={{ width: `${stats.total ? (stats.absent / stats.total) * 100 : 0}%` }}
             className="bg-rose-500 transition-all duration-300"
-            title={`Absents: ${stats.absent}`}
           />
         </div>
       </div>

@@ -20,17 +20,24 @@ export const ClassSelector: React.FC<ClassSelectorProps> = ({
   attendance,
 }) => {
   return (
-    <div className="w-full bg-slate-900/60 border border-slate-800/80 rounded-2xl p-2 sm:p-3 backdrop-blur-md shadow-xl">
+    <div className="w-full bg-white border border-slate-200/80 rounded-2xl p-2.5 sm:p-3 shadow-xs">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2 px-2">
-          <GraduationCap className="w-5 h-5 text-emerald-400" />
-          <span className="text-sm font-semibold text-slate-300">
-            Sélectionner la classe :
-          </span>
+        <div className="flex items-center gap-2 px-1">
+          <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-brand-600">
+            <GraduationCap className="w-4 h-4" />
+          </div>
+          <div>
+            <span className="text-xs font-bold text-slate-900 block">
+              Niveau & Classe active
+            </span>
+            <span className="text-[11px] text-slate-400">
+              Sélectionnez une classe pour gérer le pointage
+            </span>
+          </div>
         </div>
 
-        {/* Mobile Dropdown & Tablet/Desktop Segmented Control */}
-        <div className="grid grid-cols-3 gap-2">
+        {/* Segmented Control Buttons */}
+        <div className="grid grid-cols-3 gap-2 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
           {classes.map((cls) => {
             const isSelected = selectedClass === cls;
             const classStudents = students.filter((s) => s.classLevel === cls);
@@ -47,39 +54,30 @@ export const ClassSelector: React.FC<ClassSelectorProps> = ({
                 key={cls}
                 type="button"
                 onClick={() => onSelectClass(cls)}
-                className={`relative flex flex-col items-center justify-center py-2.5 px-3 rounded-xl transition-all duration-200 font-medium text-sm border ${
+                className={`relative flex items-center justify-center gap-2 py-2 px-3 rounded-lg transition-all duration-150 font-semibold text-xs sm:text-sm ${
                   isSelected
-                    ? "bg-emerald-600 text-white border-emerald-400/50 shadow-lg shadow-emerald-600/25 ring-2 ring-emerald-500/30 scale-[1.02]"
-                    : "bg-slate-800/80 hover:bg-slate-800 text-slate-300 border-slate-700/60 hover:border-slate-600"
+                    ? "bg-white text-slate-900 shadow-sm border border-slate-200/80 ring-1 ring-slate-900/5 font-bold"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
                 }`}
               >
-                <div className="flex items-center gap-1.5 font-bold tracking-wide">
-                  <span>{cls}</span>
-                </div>
+                <span>{cls}</span>
 
-                <div className="flex items-center gap-1.5 mt-1 text-[11px]">
+                <div className="flex items-center gap-1">
                   <span
-                    className={`flex items-center gap-0.5 ${
-                      isSelected ? "text-emerald-100" : "text-slate-400"
+                    className={`text-[11px] px-1.5 py-0.2 rounded-full font-medium ${
+                      isSelected
+                        ? "bg-slate-100 text-slate-700"
+                        : "bg-slate-200/70 text-slate-500"
                     }`}
                   >
-                    <Users className="w-3 h-3" />
                     {totalStudents}
                   </span>
 
                   {(absentCount > 0 || retardCount > 0) && (
-                    <div className="flex items-center gap-1">
-                      {absentCount > 0 && (
-                        <span className="px-1.5 py-0.2 rounded-full bg-rose-500/90 text-white text-[10px] font-bold">
-                          {absentCount} abs
-                        </span>
-                      )}
-                      {retardCount > 0 && (
-                        <span className="px-1.5 py-0.2 rounded-full bg-amber-500/90 text-white text-[10px] font-bold">
-                          {retardCount} ret
-                        </span>
-                      )}
-                    </div>
+                    <span className="flex h-2 w-2 relative">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+                    </span>
                   )}
                 </div>
               </button>

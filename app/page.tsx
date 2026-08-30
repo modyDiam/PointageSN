@@ -253,6 +253,18 @@ export default function PointageSNApp() {
     showToast(`Tous marqués Présent (${selectedClass})`, "success");
   };
 
+  // Live global absents and retards for notifications and sidebar
+  const { absentCount, retardCount } = useMemo(() => {
+    let absents = 0;
+    let retards = 0;
+    students.forEach((s) => {
+      const st = attendance[s.id] || "PRESENT";
+      if (st === "ABSENT") absents++;
+      else if (st === "RETARD") retards++;
+    });
+    return { absentCount: absents, retardCount: retards };
+  }, [students, attendance]);
+
   // Jump from Dashboard to specific class call
   const handleSelectClassAndCall = (className: string) => {
     setSelectedClass(className);
@@ -322,21 +334,24 @@ export default function PointageSNApp() {
         />
       )}
 
-      {/* SIDEBAR NAVIGATION */}
+      {/* REDESIGNED SAAS SIDEBAR */}
       <Sidebar
         currentView={activeView}
         onNavigate={setActiveView}
         schoolName={settings.schoolName}
         onOpenImport={() => setIsImportOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenReport={() => setIsSummaryOpen(true)}
         isMobileOpen={isMobileSidebarOpen}
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
+        absentCount={absentCount}
+        retardCount={retardCount}
       />
 
-      {/* MAIN LAYOUT WRAPPER */}
+      {/* MAIN WRAPPER (With left padding for desktop sidebar) */}
       <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
         
-        {/* DASHBOARD HEADER */}
+        {/* EXECUTIVE HEADER */}
         <DashboardHeader
           schoolName={settings.schoolName}
           selectedSlot={selectedSlot}
@@ -346,6 +361,10 @@ export default function PointageSNApp() {
           onOpenImport={() => setIsImportOpen(true)}
           onOpenSettings={() => setIsSettingsOpen(true)}
           onOpenMobileMenu={() => setIsMobileSidebarOpen(true)}
+          students={students}
+          attendance={attendance}
+          historySessions={historySessions}
+          currentView={activeView}
         />
 
         {/* DYNAMIC VIEW ROUTER */}
@@ -369,7 +388,7 @@ export default function PointageSNApp() {
             />
           )}
 
-          {/* VIEW 2: FAIRE L'APPEL / NOUVELLE EXPÉRIENCE POINTAGE */}
+          {/* VIEW 2: FAIRE L'APPEL (NOUVELLE EXPÉRIENCE POINTAGE) */}
           {activeView === "ATTENDANCE" && (
             <AttendanceView
               students={students}

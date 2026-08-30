@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   ClipboardCheck,
   BarChart3,
+  Users,
   UserX,
   Clock,
   FileSpreadsheet,
@@ -29,6 +30,7 @@ interface SidebarProps {
   onCloseMobile: () => void;
   absentCount?: number;
   retardCount?: number;
+  totalStudentsCount?: number;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -42,6 +44,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onCloseMobile,
   absentCount = 0,
   retardCount = 0,
+  totalStudentsCount = 12,
 }) => {
   return (
     <>
@@ -142,6 +145,32 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
               <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-800 font-bold border border-emerald-200/60">
                 Pointage
+              </span>
+            </button>
+
+            {/* Gestion des Élèves & Classes */}
+            <button
+              type="button"
+              onClick={() => {
+                onNavigate("STUDENTS");
+                onCloseMobile();
+              }}
+              className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-xl transition-all ${
+                currentView === "STUDENTS"
+                  ? "bg-slate-100 text-slate-900 font-bold border-l-2 border-navy-900 shadow-2xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-l-2 border-transparent"
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <Users
+                  className={`w-4 h-4 ${
+                    currentView === "STUDENTS" ? "text-brand-600" : "text-slate-400"
+                  }`}
+                />
+                <span>Élèves & Classes</span>
+              </div>
+              <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-200/60 text-slate-600 font-mono">
+                {totalStudentsCount}
               </span>
             </button>
           </div>
@@ -248,7 +277,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all"
             >
               <FileSpreadsheet className="w-4 h-4 text-brand-600" />
-              <span>Élèves & Classes (CSV)</span>
+              <span>Importer Fichier (CSV)</span>
             </button>
 
             {/* Paramètres */}

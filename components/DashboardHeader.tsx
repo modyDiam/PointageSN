@@ -69,6 +69,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     DASHBOARD: "Vue d'ensemble",
     ATTENDANCE: "Prise d'Appel",
     REGISTER: "Registre Mensuel",
+    STUDENTS: "Gestion des Élèves",
   };
 
   return (

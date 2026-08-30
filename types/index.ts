@@ -7,6 +7,7 @@ export interface Student {
   classLevel: string;
   parentName: string;
   parentPhone: string;
+  createdAt?: number;
 }
 
 export type AttendanceRecord = Record<string, AttendanceStatus>;
@@ -42,7 +43,7 @@ export interface StudentMonthlyStat {
   totalSessions: number;
 }
 
-export type AppView = 'DASHBOARD' | 'ATTENDANCE' | 'REGISTER';
+export type AppView = 'DASHBOARD' | 'ATTENDANCE' | 'REGISTER' | 'STUDENTS';
 
 export interface ActivityEvent {
   id: string;

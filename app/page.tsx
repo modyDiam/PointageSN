@@ -24,6 +24,8 @@ import { Sidebar } from "@/components/Sidebar";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { DashboardView } from "@/components/DashboardView";
 import { AttendanceView } from "@/components/AttendanceView";
+import { StudentsManagementView } from "@/components/StudentsManagementView";
+import { StudentFormModal } from "@/components/StudentFormModal";
 import { SummaryModal } from "@/components/SummaryModal";
 import { ImportModal } from "@/components/ImportModal";
 import { SettingsModal } from "@/components/SettingsModal";
@@ -38,7 +40,7 @@ const STORAGE_KEY_HISTORY = "pointagesn_history_v3";
 const TIME_SLOTS = ["08h - 12h", "14h - 18h", "08h - 14h"] as const;
 
 export default function PointageSNApp() {
-  // Navigation View: "DASHBOARD" | "ATTENDANCE" | "REGISTER"
+  // Navigation View: "DASHBOARD" | "ATTENDANCE" | "REGISTER" | "STUDENTS"
   const [activeView, setActiveView] = useState<AppView>("DASHBOARD");
 
   // Mobile sidebar state
@@ -50,6 +52,10 @@ export default function PointageSNApp() {
   const [selectedSlot, setSelectedSlot] = useState<string>(TIME_SLOTS[0]);
   const [attendance, setAttendance] = useState<AttendanceRecord>({});
   const [historySessions, setHistorySessions] = useState<AttendanceSession[]>([]);
+
+  // Student Form Modal state
+  const [isStudentFormOpen, setIsStudentFormOpen] = useState<boolean>(false);
+  const [studentToEdit, setStudentToEdit] = useState<Student | null>(null);
 
   // Settings
   const [settings, setSettings] = useState<SchoolSettings>({
@@ -84,7 +90,8 @@ export default function PointageSNApp() {
   // Dynamic available classes from students
   const availableClasses = useMemo(() => {
     const classSet = new Set(students.map((s) => s.classLevel));
-    return Array.from(classSet);
+    const list = Array.from(classSet);
+    return list.length > 0 ? list : ["6e A", "3e A", "Tle S2"];
   }, [students]);
 
   // Date formatting
@@ -203,6 +210,79 @@ export default function PointageSNApp() {
     } catch (e) {
       console.error(e);
     }
+  };
+
+  // Add or Edit Single Student
+  const handleSaveStudent = (data: Omit<Student, "id"> & { id?: string }) => {
+    if (data.id) {
+      // Edit existing
+      setStudents((prev) => {
+        const next = prev.map((s) =>
+          s.id === data.id
+            ? {
+                ...s,
+                firstName: data.firstName,
+                lastName: data.lastName,
+                classLevel: data.classLevel,
+                parentName: data.parentName,
+                parentPhone: data.parentPhone,
+              }
+            : s
+        );
+        try {
+          localStorage.setItem(STORAGE_KEY_STUDENTS, JSON.stringify(next));
+        } catch (e) {
+          console.error(e);
+        }
+        return next;
+      });
+    } else {
+      // Add new
+      const newStudent: Student = {
+        id: `stu-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        classLevel: data.classLevel,
+        parentName: data.parentName,
+        parentPhone: data.parentPhone,
+        createdAt: Date.now(),
+      };
+
+      setStudents((prev) => {
+        const next = [newStudent, ...prev];
+        try {
+          localStorage.setItem(STORAGE_KEY_STUDENTS, JSON.stringify(next));
+        } catch (e) {
+          console.error(e);
+        }
+        return next;
+      });
+
+      // Add to attendance with PRESENT
+      setAttendance((prev) => ({
+        ...prev,
+        [newStudent.id]: "PRESENT",
+      }));
+    }
+  };
+
+  // Delete Student
+  const handleDeleteStudent = (studentId: string) => {
+    setStudents((prev) => {
+      const next = prev.filter((s) => s.id !== studentId);
+      try {
+        localStorage.setItem(STORAGE_KEY_STUDENTS, JSON.stringify(next));
+      } catch (e) {
+        console.error(e);
+      }
+      return next;
+    });
+
+    setAttendance((prev) => {
+      const next = { ...prev };
+      delete next[studentId];
+      return next;
+    });
   };
 
   // Save settings
@@ -346,6 +426,7 @@ export default function PointageSNApp() {
         onCloseMobile={() => setIsMobileSidebarOpen(false)}
         absentCount={absentCount}
         retardCount={retardCount}
+        totalStudentsCount={students.length}
       />
 
       {/* MAIN WRAPPER (With left padding for desktop sidebar) */}
@@ -388,7 +469,7 @@ export default function PointageSNApp() {
             />
           )}
 
-          {/* VIEW 2: FAIRE L'APPEL (NOUVELLE EXPÉRIENCE POINTAGE) */}
+          {/* VIEW 2: FAIRE L'APPEL (EXPÉRIENCE POINTAGE) */}
           {activeView === "ATTENDANCE" && (
             <AttendanceView
               students={students}
@@ -409,7 +490,43 @@ export default function PointageSNApp() {
             />
           )}
 
-          {/* VIEW 3: REGISTRE MENSUEL */}
+          {/* VIEW 3: GESTION DES ÉLÈVES & CLASSES (NOUVEAU MODULE SAAS) */}
+          {activeView === "STUDENTS" && (
+            <div className="space-y-3.5 animate-fade-in">
+              <div className="flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveView("DASHBOARD")}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200/80 px-3 py-1.5 rounded-xl transition shadow-2xs"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Retour au Dashboard</span>
+                </button>
+              </div>
+
+              <StudentsManagementView
+                students={students}
+                availableClasses={availableClasses}
+                attendance={attendance}
+                historySessions={historySessions}
+                schoolName={settings.schoolName}
+                onOpenAddStudent={() => {
+                  setStudentToEdit(null);
+                  setIsStudentFormOpen(true);
+                }}
+                onOpenEditStudent={(st) => {
+                  setStudentToEdit(st);
+                  setIsStudentFormOpen(true);
+                }}
+                onDeleteStudent={handleDeleteStudent}
+                onOpenImport={() => setIsImportOpen(true)}
+                onRestoreDefaults={handleRestoreDefaultStudents}
+                onShowToast={showToast}
+              />
+            </div>
+          )}
+
+          {/* VIEW 4: REGISTRE MENSUEL */}
           {activeView === "REGISTER" && (
             <div className="space-y-3.5 animate-fade-in">
               <div className="flex items-center justify-between gap-2">
@@ -438,6 +555,18 @@ export default function PointageSNApp() {
       </div>
 
       {/* MODALS */}
+      <StudentFormModal
+        isOpen={isStudentFormOpen}
+        onClose={() => {
+          setIsStudentFormOpen(false);
+          setStudentToEdit(null);
+        }}
+        studentToEdit={studentToEdit}
+        availableClasses={availableClasses}
+        onSaveStudent={handleSaveStudent}
+        onShowToast={showToast}
+      />
+
       <SummaryModal
         isOpen={isSummaryOpen}
         onClose={() => setIsSummaryOpen(false)}

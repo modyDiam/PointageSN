@@ -276,19 +276,125 @@ export const MonthlyRegisterView: React.FC<MonthlyRegisterViewProps> = ({
         </div>
       </Card>
 
-      {/* 3. CUMULATIVE STUDENTS TABLE */}
-      <Card className="overflow-hidden">
-        {/* Table Header */}
-        <div className="hidden sm:grid sm:grid-cols-12 gap-3 px-4 py-2.5 bg-slate-50 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-          <div className="sm:col-span-1 text-center">#</div>
-          <div className="sm:col-span-4">Élève & Classe</div>
-          <div className="sm:col-span-3">Contact Tuteur</div>
-          <div className="sm:col-span-2 text-center">Bilan Cumulé</div>
-          <div className="sm:col-span-2 text-right">Assiduité & Vigilance</div>
-        </div>
+      {/* 3. CUMULATIVE STUDENTS (DESKTOP TABLE + MOBILE CARDS) */}
+      <div className="space-y-2.5">
+        
+        {/* DESKTOP TABLE (Hidden on Mobile) */}
+        <Card className="hidden sm:block overflow-hidden">
+          <div className="grid grid-cols-12 gap-3 px-4 py-2.5 bg-slate-50 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            <div className="col-span-1 text-center">#</div>
+            <div className="col-span-4">Élève & Classe</div>
+            <div className="col-span-3">Contact Tuteur</div>
+            <div className="col-span-2 text-center">Bilan Cumulé</div>
+            <div className="col-span-2 text-right">Assiduité & Vigilance</div>
+          </div>
 
-        {/* Rows */}
-        <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-100">
+            {filteredStudents.length > 0 ? (
+              filteredStudents.map((student, idx) => {
+                const stats = studentStats[student.id] || {
+                  absent: 0,
+                  retard: 0,
+                  present: 0,
+                  totalSessions: 0,
+                  rate: 100,
+                };
+                const isCritical = stats.absent >= 3;
+                const initials = `${student.firstName[0]}${student.lastName[0]}`.toUpperCase();
+
+                return (
+                  <div
+                    key={student.id}
+                    className={`px-4 py-3 transition-colors grid grid-cols-12 items-center gap-3 hover:bg-slate-50/80 ${
+                      isCritical ? "bg-rose-50/20" : ""
+                    }`}
+                  >
+                    <div className="col-span-1 text-center text-xs font-mono text-slate-400">
+                      {idx + 1}
+                    </div>
+
+                    <div className="col-span-4 flex items-center gap-2.5 min-w-0">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${
+                          isCritical
+                            ? "bg-rose-100 text-rose-800 border border-rose-200"
+                            : "bg-slate-100 text-slate-700 border border-slate-200/80"
+                        }`}
+                      >
+                        {initials}
+                      </div>
+
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-bold text-xs sm:text-sm text-slate-900 truncate">
+                            {student.firstName} {student.lastName}
+                          </span>
+                          <Badge variant="neutral">{student.classLevel}</Badge>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="col-span-3 text-xs">
+                      <div className="text-slate-800 font-medium truncate">
+                        {student.parentName}
+                      </div>
+                      <div className="flex items-center gap-1 text-[11px] text-slate-500 font-mono mt-0.5">
+                        <Phone className="w-3 h-3 text-slate-400" />
+                        <a
+                          href={`tel:+${student.parentPhone}`}
+                          className="hover:text-brand-600 transition hover:underline"
+                        >
+                          {formatPhoneDisplay(student.parentPhone)}
+                        </a>
+                      </div>
+                    </div>
+
+                    <div className="col-span-2 flex items-center justify-center gap-1.5 flex-wrap">
+                      <Badge variant={stats.absent > 0 ? "danger" : "neutral"}>
+                        {stats.absent} abs.
+                      </Badge>
+                      <Badge variant={stats.retard > 0 ? "warning" : "neutral"}>
+                        {stats.retard} ret.
+                      </Badge>
+                    </div>
+
+                    <div className="col-span-2 flex items-center justify-end gap-2">
+                      <div className="text-right">
+                        <div
+                          className={`text-xs font-black tabular-nums ${
+                            stats.rate < 75
+                              ? "text-rose-600"
+                              : stats.rate < 90
+                              ? "text-amber-600"
+                              : "text-emerald-700"
+                          }`}
+                        >
+                          {stats.rate}%
+                        </div>
+                        <div className="text-[10px] text-slate-400">Assiduité</div>
+                      </div>
+
+                      {isCritical ? (
+                        <Badge variant="danger" dot dotPulse>
+                          Vigilance (≥3)
+                        </Badge>
+                      ) : (
+                        <Badge variant="success">Régulier</Badge>
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="p-8 text-center text-slate-400 text-xs">
+                Aucun élève trouvé pour cette classe ou recherche.
+              </div>
+            )}
+          </div>
+        </Card>
+
+        {/* MOBILE CARDS (Visible on < 640px) */}
+        <div className="sm:hidden space-y-2.5">
           {filteredStudents.length > 0 ? (
             filteredStudents.map((student, idx) => {
               const stats = studentStats[student.id] || {
@@ -302,75 +408,40 @@ export const MonthlyRegisterView: React.FC<MonthlyRegisterViewProps> = ({
               const initials = `${student.firstName[0]}${student.lastName[0]}`.toUpperCase();
 
               return (
-                <div
+                <Card
                   key={student.id}
-                  className={`p-3 sm:px-4 sm:py-3 transition-colors flex flex-col sm:grid sm:grid-cols-12 sm:items-center gap-2.5 sm:gap-3 hover:bg-slate-50/80 ${
-                    isCritical ? "bg-rose-50/20" : ""
-                  }`}
+                  className={`p-3.5 space-y-2.5 ${isCritical ? "bg-rose-50/20 border-rose-200" : ""}`}
                 >
-                  {/* Col 0: Index */}
-                  <div className="hidden sm:block sm:col-span-1 text-center text-xs font-mono text-slate-400">
-                    {idx + 1}
-                  </div>
-
-                  {/* Col 1: Élève */}
-                  <div className="sm:col-span-4 flex items-center gap-2.5 min-w-0">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${
-                        isCritical
-                          ? "bg-rose-100 text-rose-800 border border-rose-200"
-                          : "bg-slate-100 text-slate-700 border border-slate-200/80"
-                      }`}
-                    >
-                      {initials}
-                    </div>
-
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="font-bold text-xs sm:text-sm text-slate-900 truncate">
-                          {student.firstName} {student.lastName}
-                        </span>
-                        <Badge variant="neutral">{student.classLevel}</Badge>
-                      </div>
-
-                      {/* Mobile parent display */}
-                      <div className="sm:hidden text-[11px] text-slate-500 mt-0.5">
-                        Tuteur : {student.parentName} ({formatPhoneDisplay(student.parentPhone)})
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Col 2: Tuteur (Desktop) */}
-                  <div className="hidden sm:block sm:col-span-3 text-xs">
-                    <div className="text-slate-800 font-medium truncate">
-                      {student.parentName}
-                    </div>
-                    <div className="flex items-center gap-1 text-[11px] text-slate-500 font-mono mt-0.5">
-                      <Phone className="w-3 h-3 text-slate-400" />
-                      <a
-                        href={`tel:+${student.parentPhone}`}
-                        className="hover:text-brand-600 transition hover:underline"
-                      >
-                        {formatPhoneDisplay(student.parentPhone)}
-                      </a>
-                    </div>
-                  </div>
-
-                  {/* Col 3: Absences & Retards Pills */}
-                  <div className="sm:col-span-2 flex items-center sm:justify-center gap-1.5 flex-wrap">
-                    <Badge variant={stats.absent > 0 ? "danger" : "neutral"}>
-                      {stats.absent} abs.
-                    </Badge>
-                    <Badge variant={stats.retard > 0 ? "warning" : "neutral"}>
-                      {stats.retard} ret.
-                    </Badge>
-                  </div>
-
-                  {/* Col 4: Assiduité Rate & Vigilance */}
-                  <div className="sm:col-span-2 flex items-center justify-between sm:justify-end gap-2">
-                    <div className="text-right">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2.5 min-w-0">
                       <div
-                        className={`text-xs font-black tabular-nums ${
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${
+                          isCritical
+                            ? "bg-rose-100 text-rose-800 border border-rose-200"
+                            : "bg-slate-100 text-slate-800 border border-slate-200"
+                        }`}
+                      >
+                        {initials}
+                      </div>
+
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[11px] font-mono text-slate-400">#{idx + 1}</span>
+                          <h3 className="font-extrabold text-sm text-slate-900 truncate">
+                            {student.firstName} {student.lastName}
+                          </h3>
+                        </div>
+                        <div className="flex items-center gap-1 text-[11px] text-slate-500 mt-0.5">
+                          <Badge variant="neutral">{student.classLevel}</Badge>
+                          <span className="text-slate-300">•</span>
+                          <span>Tuteur: {student.parentName}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <div
+                        className={`text-sm font-black tabular-nums ${
                           stats.rate < 75
                             ? "text-rose-600"
                             : stats.rate < 90
@@ -380,27 +451,46 @@ export const MonthlyRegisterView: React.FC<MonthlyRegisterViewProps> = ({
                       >
                         {stats.rate}%
                       </div>
-                      <div className="text-[10px] text-slate-400">Assiduité</div>
+                      <div className="text-[9px] text-slate-400">Taux mois</div>
+                    </div>
+                  </div>
+
+                  {/* Cumulative stats badges bar */}
+                  <div className="grid grid-cols-3 gap-2 p-2 bg-slate-50 rounded-xl border border-slate-200/80 text-center text-xs">
+                    <div>
+                      <span className="text-[10px] text-slate-400 uppercase font-bold block">Absences</span>
+                      <strong className={`text-xs ${stats.absent > 0 ? "text-rose-600" : "text-slate-700"}`}>
+                        {stats.absent} abs.
+                      </strong>
                     </div>
 
-                    {isCritical ? (
-                      <Badge variant="danger" dot dotPulse>
-                        Vigilance (≥3)
-                      </Badge>
-                    ) : (
-                      <Badge variant="success">Régulier</Badge>
-                    )}
+                    <div>
+                      <span className="text-[10px] text-slate-400 uppercase font-bold block">Retards</span>
+                      <strong className={`text-xs ${stats.retard > 0 ? "text-amber-600" : "text-slate-700"}`}>
+                        {stats.retard} ret.
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span className="text-[10px] text-slate-400 uppercase font-bold block">Statut</span>
+                      {isCritical ? (
+                        <span className="text-[10px] font-bold text-rose-600">Vigilance</span>
+                      ) : (
+                        <span className="text-[10px] font-bold text-emerald-700">Régulier</span>
+                      )}
+                    </div>
                   </div>
-                </div>
+                </Card>
               );
             })
           ) : (
-            <div className="p-8 text-center text-slate-400 text-xs">
+            <Card className="p-8 text-center text-slate-400 text-xs">
               Aucun élève trouvé pour cette classe ou recherche.
-            </div>
+            </Card>
           )}
         </div>
-      </Card>
+
+      </div>
 
       {/* 4. RESET CONFIRMATION MODAL */}
       <Modal

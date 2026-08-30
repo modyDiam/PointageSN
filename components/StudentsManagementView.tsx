@@ -290,20 +290,139 @@ export const StudentsManagementView: React.FC<StudentsManagementViewProps> = ({
         </div>
       </Card>
 
-      {/* 3. STUDENTS LIST TABLE */}
+      {/* 3. STUDENTS LIST (DESKTOP TABLE + MOBILE CARDS) */}
       {filteredAndSortedStudents.length > 0 ? (
-        <Card className="overflow-hidden">
-          {/* Desktop Table Header */}
-          <div className="hidden sm:grid sm:grid-cols-12 gap-3 px-4 py-2.5 bg-slate-50 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-            <div className="sm:col-span-1 text-center">#</div>
-            <div className="sm:col-span-4">Élève & Classe</div>
-            <div className="sm:col-span-3">Tuteur & Téléphone</div>
-            <div className="sm:col-span-2 text-center">Assiduité Mois</div>
-            <div className="sm:col-span-2 text-right">Actions</div>
-          </div>
+        <div className="space-y-2.5">
+          
+          {/* DESKTOP TABLE (Hidden on Mobile) */}
+          <Card className="hidden sm:block overflow-hidden">
+            <div className="grid grid-cols-12 gap-3 px-4 py-2.5 bg-slate-50 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              <div className="col-span-1 text-center">#</div>
+              <div className="col-span-4">Élève & Classe</div>
+              <div className="col-span-3">Tuteur & Téléphone</div>
+              <div className="col-span-2 text-center">Assiduité Mois</div>
+              <div className="col-span-2 text-right">Actions</div>
+            </div>
 
-          {/* Table Rows */}
-          <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-slate-100">
+              {filteredAndSortedStudents.map((student, idx) => {
+                const st = studentStats[student.id] || {
+                  absent: 0,
+                  retard: 0,
+                  present: 0,
+                  rate: 100,
+                };
+                const todayStatus = attendance[student.id] || "PRESENT";
+                const isCritical = st.absent >= 3;
+                const initials = `${student.firstName[0]}${student.lastName[0]}`.toUpperCase();
+                const whatsappUrl = generateParentWhatsAppLink(student, todayStatus, schoolName);
+
+                return (
+                  <div
+                    key={student.id}
+                    className={`px-4 py-3 transition-colors grid grid-cols-12 items-center gap-3 hover:bg-slate-50/80 ${
+                      isCritical ? "bg-rose-50/20" : ""
+                    }`}
+                  >
+                    <div className="col-span-1 text-center text-xs font-mono text-slate-400">
+                      {idx + 1}
+                    </div>
+
+                    <div className="col-span-4 flex items-center gap-2.5 min-w-0">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${
+                          isCritical
+                            ? "bg-rose-100 text-rose-800 border border-rose-200"
+                            : "bg-slate-100 text-slate-700 border border-slate-200/80"
+                        }`}
+                      >
+                        {initials}
+                      </div>
+
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-bold text-xs sm:text-sm text-slate-900 truncate">
+                            {student.firstName} {student.lastName}
+                          </span>
+                          <Badge variant="neutral">{student.classLevel}</Badge>
+                          {isCritical && (
+                            <Badge variant="danger" dot dotPulse>
+                              Vigilance
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="col-span-3 text-xs">
+                      <div className="text-slate-800 font-medium truncate">
+                        {student.parentName}
+                      </div>
+                      <div className="flex items-center gap-1 text-[11px] text-slate-500 font-mono mt-0.5">
+                        <Phone className="w-3 h-3 text-slate-400" />
+                        <a
+                          href={`tel:+${student.parentPhone}`}
+                          className="hover:text-brand-600 transition hover:underline"
+                        >
+                          {formatPhoneDisplay(student.parentPhone)}
+                        </a>
+                      </div>
+                    </div>
+
+                    <div className="col-span-2 flex items-center justify-center gap-2">
+                      <span
+                        className={`text-xs font-black tabular-nums ${
+                          st.rate < 75
+                            ? "text-rose-600"
+                            : st.rate < 90
+                            ? "text-amber-600"
+                            : "text-emerald-700"
+                        }`}
+                      >
+                        {st.rate}%
+                      </span>
+                      <span className="text-[11px] text-slate-400 font-normal">
+                        ({st.absent} abs.)
+                      </span>
+                    </div>
+
+                    <div className="col-span-2 flex items-center justify-end gap-1.5">
+                      <a
+                        href={whatsappUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition border border-slate-200/80 hover:border-emerald-200"
+                        title="Contacter le parent sur WhatsApp"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5 text-[#25D366]" />
+                      </a>
+
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        onClick={() => onOpenEditStudent(student)}
+                        title="Modifier"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </Button>
+
+                      <button
+                        type="button"
+                        onClick={() => setStudentToDelete(student)}
+                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition border border-slate-200/80 hover:border-rose-200"
+                        title="Supprimer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+
+          {/* MOBILE CARDS LIST (Visible only on < 640px) */}
+          <div className="sm:hidden space-y-2.5">
             {filteredAndSortedStudents.map((student, idx) => {
               const st = studentStats[student.id] || {
                 absent: 0,
@@ -314,129 +433,100 @@ export const StudentsManagementView: React.FC<StudentsManagementViewProps> = ({
               const todayStatus = attendance[student.id] || "PRESENT";
               const isCritical = st.absent >= 3;
               const initials = `${student.firstName[0]}${student.lastName[0]}`.toUpperCase();
-              const whatsappUrl = generateParentWhatsAppLink(
-                student,
-                todayStatus,
-                schoolName
-              );
+              const whatsappUrl = generateParentWhatsAppLink(student, todayStatus, schoolName);
 
               return (
-                <div
+                <Card
                   key={student.id}
-                  className={`p-3 sm:px-4 sm:py-3 transition-colors flex flex-col sm:grid sm:grid-cols-12 sm:items-center gap-2.5 sm:gap-3 hover:bg-slate-50/80 ${
-                    isCritical ? "bg-rose-50/20" : ""
-                  }`}
+                  className={`p-3.5 space-y-2.5 ${isCritical ? "bg-rose-50/20 border-rose-200" : ""}`}
                 >
-                  {/* Col 0: Index */}
-                  <div className="hidden sm:block sm:col-span-1 text-center text-xs font-mono text-slate-400">
-                    {idx + 1}
-                  </div>
-
-                  {/* Col 1: Élève */}
-                  <div className="sm:col-span-4 flex items-center gap-2.5 min-w-0">
-                    <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${
-                        isCritical
-                          ? "bg-rose-100 text-rose-800 border border-rose-200"
-                          : "bg-slate-100 text-slate-700 border border-slate-200/80"
-                      }`}
-                    >
-                      {initials}
-                    </div>
-
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="font-bold text-xs sm:text-sm text-slate-900 truncate">
-                          {student.firstName} {student.lastName}
-                        </span>
-                        <Badge variant="neutral">{student.classLevel}</Badge>
-                        {isCritical && (
-                          <Badge variant="danger" dot dotPulse>
-                            Vigilance
-                          </Badge>
-                        )}
-                      </div>
-
-                      {/* Mobile parent info */}
-                      <div className="sm:hidden text-[11px] text-slate-500 mt-0.5">
-                        Tuteur : {student.parentName} ({formatPhoneDisplay(student.parentPhone)})
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Col 2: Tuteur (Desktop) */}
-                  <div className="hidden sm:block sm:col-span-3 text-xs">
-                    <div className="text-slate-800 font-medium truncate">
-                      {student.parentName}
-                    </div>
-                    <div className="flex items-center gap-1 text-[11px] text-slate-500 font-mono mt-0.5">
-                      <Phone className="w-3 h-3 text-slate-400" />
-                      <a
-                        href={`tel:+${student.parentPhone}`}
-                        className="hover:text-brand-600 transition hover:underline"
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${
+                          isCritical
+                            ? "bg-rose-100 text-rose-800 border border-rose-200"
+                            : "bg-slate-100 text-slate-800 border border-slate-200"
+                        }`}
                       >
-                        {formatPhoneDisplay(student.parentPhone)}
-                      </a>
+                        {initials}
+                      </div>
+
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[11px] font-mono text-slate-400">#{idx + 1}</span>
+                          <h3 className="font-extrabold text-sm text-slate-900 truncate">
+                            {student.firstName} {student.lastName}
+                          </h3>
+                        </div>
+                        <div className="flex items-center gap-1 text-[11px] text-slate-500 mt-0.5">
+                          <Badge variant="neutral">{student.classLevel}</Badge>
+                          <span className="text-slate-300">•</span>
+                          <span className="font-bold text-emerald-700">{st.rate}% assiduité</span>
+                        </div>
+                      </div>
                     </div>
+
+                    {isCritical && (
+                      <Badge variant="danger" dot dotPulse size="xs">
+                        Vigilance
+                      </Badge>
+                    )}
                   </div>
 
-                  {/* Col 3: Assiduité Mois */}
-                  <div className="sm:col-span-2 flex items-center sm:justify-center gap-2">
-                    <span
-                      className={`text-xs font-black tabular-nums ${
-                        st.rate < 75
-                          ? "text-rose-600"
-                          : st.rate < 90
-                          ? "text-amber-600"
-                          : "text-emerald-700"
-                      }`}
+                  <div className="p-2 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center justify-between text-xs">
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                        Tuteur Légal :
+                      </span>
+                      <strong className="text-slate-800">{student.parentName}</strong>
+                    </div>
+
+                    <a
+                      href={`tel:+${student.parentPhone}`}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-slate-700 font-mono text-[11px] font-semibold"
                     >
-                      {st.rate}%
-                    </span>
-
-                    <span className="text-[11px] text-slate-400 font-normal">
-                      ({st.absent} abs.)
-                    </span>
+                      <Phone className="w-3 h-3 text-slate-400" />
+                      <span>{formatPhoneDisplay(student.parentPhone)}</span>
+                    </a>
                   </div>
 
-                  {/* Col 4: Actions Buttons */}
-                  <div className="sm:col-span-2 flex items-center justify-end gap-1.5">
-                    {/* WhatsApp */}
+                  {/* 3 Large Mobile Action Buttons */}
+                  <div className="grid grid-cols-3 gap-2 pt-1">
                     <a
                       href={whatsappUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-1.5 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition border border-slate-200/80 hover:border-emerald-200"
-                      title="Contacter le parent sur WhatsApp"
+                      className="h-10 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1 shadow-2xs active:scale-95"
                     >
-                      <MessageSquare className="w-3.5 h-3.5 text-[#25D366]" />
+                      <MessageSquare className="w-3.5 h-3.5 fill-current" />
+                      <span>WhatsApp</span>
                     </a>
 
-                    {/* Edit */}
-                    <Button
-                      variant="secondary"
-                      size="icon"
+                    <button
+                      type="button"
                       onClick={() => onOpenEditStudent(student)}
-                      title="Modifier les informations de l'élève"
+                      className="h-10 bg-white border border-slate-200 text-slate-800 rounded-xl text-xs font-bold flex items-center justify-center gap-1 shadow-2xs active:scale-95 hover:bg-slate-50"
                     >
-                      <Pencil className="w-3.5 h-3.5" />
-                    </Button>
+                      <Pencil className="w-3.5 h-3.5 text-slate-500" />
+                      <span>Modifier</span>
+                    </button>
 
-                    {/* Delete */}
                     <button
                       type="button"
                       onClick={() => setStudentToDelete(student)}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition border border-slate-200/80 hover:border-rose-200"
-                      title="Supprimer l'élève de l'établissement"
+                      className="h-10 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-bold flex items-center justify-center gap-1 shadow-2xs active:scale-95 hover:bg-rose-100"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
+                      <span>Supprimer</span>
                     </button>
                   </div>
-                </div>
+                </Card>
               );
             })}
           </div>
-        </Card>
+
+        </div>
       ) : (
         /* 4. EMPTY STATE AVEC EXPLICATIONS & ACTIONS */
         <EmptyState

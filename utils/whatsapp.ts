@@ -1,17 +1,40 @@
 import { Student, AttendanceStatus, AttendanceRecord } from "@/types";
 
+export const DEFAULT_ABSENT_TEMPLATE =
+  "PointageSN • {Ecole} : Bonjour {Parent}, votre enfant {Eleve} ({Classe}) est constaté ABSENT ce jour sans justification. Merci de contacter la vie scolaire.";
+
+export const DEFAULT_RETARD_TEMPLATE =
+  "PointageSN • {Ecole} : Bonjour {Parent}, votre enfant {Eleve} ({Classe}) est arrivé en RETARD ce jour. Merci de veiller au respect des horaires.";
+
+export function formatTemplate(
+  template: string,
+  student: Student,
+  schoolName: string
+): string {
+  const fullName = `${student.firstName} ${student.lastName}`;
+  return template
+    .replace(/\{Ecole\}/g, schoolName)
+    .replace(/\{Parent\}/g, student.parentName)
+    .replace(/\{Eleve\}/g, fullName)
+    .replace(/\{Classe\}/g, student.classLevel);
+}
+
 export function generateParentWhatsAppLink(
   student: Student,
   status: AttendanceStatus,
-  schoolName: string = "Lycée d'Excellence Birago Diop"
+  schoolName: string = "Lycée d'Excellence Birago Diop",
+  customAbsentTemplate?: string,
+  customRetardTemplate?: string
 ): string {
   const fullName = `${student.firstName} ${student.lastName}`;
   let message = "";
 
   if (status === "ABSENT") {
-    message = `PointageSN • ${schoolName} : Bonjour ${student.parentName}, votre enfant ${fullName} (${student.classLevel}) est constaté ABSENT ce jour sans justification. Merci de contacter la vie scolaire.`;
+    const tpl = customAbsentTemplate || DEFAULT_ABSENT_TEMPLATE;
+    message = formatTemplate(tpl, student, schoolName);
   } else if (status === "RETARD") {
-    message = `PointageSN • ${schoolName} : Bonjour ${student.parentName}, votre enfant ${fullName} (${student.classLevel}) est arrivé en RETARD ce jour. Merci de veiller au respect des horaires.`;
+    const tpl = customRetardTemplate || DEFAULT_RETARD_TEMPLATE;
+    message = formatTemplate(tpl, student, schoolName);
   } else {
     message = `PointageSN • ${schoolName} : Bonjour ${student.parentName}, votre enfant ${fullName} (${student.classLevel}) est bien présent en classe.`;
   }
@@ -21,7 +44,6 @@ export function generateParentWhatsAppLink(
 }
 
 export function formatPhoneDisplay(phone: string): string {
-  // Format 221771234567 -> +221 77 123 45 67
   const digits = phone.replace(/[^0-9]/g, "");
   if (digits.startsWith("221") && digits.length === 12) {
     return `+221 ${digits.slice(3, 5)} ${digits.slice(5, 8)} ${digits.slice(8, 10)} ${digits.slice(10, 12)}`;
@@ -47,21 +69,21 @@ export function generateDirectionReport(
 
   let report = `📋 *RAPPORT DE POINTAGE DE SÉANCE*\n`;
   report += `🏫 *Établissement :* ${schoolName}\n`;
-  report += `📅 *Date & Heure :* ${sessionDate}\n`;
+  report += `📅 *Date :* ${sessionDate}\n`;
   report += `📚 *Classe :* ${selectedClass}\n`;
   report += `────────────────────────────\n`;
-  report += `📊 *SYNTHÈSE GLOBALE :*\n`;
-  report += `• 👥 Effectif total : *${total} élève(s)*\n`;
+  report += `📊 *SYNTHÈSE :*\n`;
+  report += `• 👥 Effectif : *${total} élève(s)*\n`;
   report += `• ✅ Présents : *${presents.length}*\n`;
   report += `• ❌ Absents : *${absents.length}*\n`;
   report += `• ⏰ Retards : *${retards.length}*\n`;
-  report += `• 📈 Taux de présence : *${attendanceRate}%*\n`;
+  report += `• 📈 Taux d'assiduité : *${attendanceRate}%*\n`;
   report += `────────────────────────────\n`;
 
   if (absents.length > 0) {
-    report += `🔴 *LISTE DES ABSENTS (${absents.length}) :*\n`;
+    report += `🔴 *ABSENTS (${absents.length}) :*\n`;
     absents.forEach((s, idx) => {
-      report += `  ${idx + 1}. ${s.firstName} ${s.lastName} (Parent: ${s.parentName} - ${formatPhoneDisplay(s.parentPhone)})\n`;
+      report += `  ${idx + 1}. ${s.firstName} ${s.lastName} (Tuteur: ${s.parentName} - ${formatPhoneDisplay(s.parentPhone)})\n`;
     });
     report += `\n`;
   } else {
@@ -69,17 +91,17 @@ export function generateDirectionReport(
   }
 
   if (retards.length > 0) {
-    report += `🟠 *LISTE DES RETARDATAIRES (${retards.length}) :*\n`;
+    report += `🟠 *RETARDATAIRES (${retards.length}) :*\n`;
     retards.forEach((s, idx) => {
-      report += `  ${idx + 1}. ${s.firstName} ${s.lastName} (Parent: ${s.parentName} - ${formatPhoneDisplay(s.parentPhone)})\n`;
+      report += `  ${idx + 1}. ${s.firstName} ${s.lastName} (Tuteur: ${s.parentName} - ${formatPhoneDisplay(s.parentPhone)})\n`;
     });
     report += `\n`;
   } else {
-    report += `🟢 *Retards :* Aucun élève en retard\n\n`;
+    report += `🟢 *Retards :* Aucun retard constaté\n\n`;
   }
 
   report += `────────────────────────────\n`;
-  report += `_PointageSN 🇸🇳 • Vie Scolaire Digitale & Instantanée_`;
+  report += `_PointageSN 🇸🇳 • Gestion Scolaire Instantanée_`;
 
   return report;
 }

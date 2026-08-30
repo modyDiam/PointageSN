@@ -44,3 +44,58 @@ body {
   background-color: #0f172a;
   color: #ffffff;
 }
+
+/* Administrative Print & PDF Styling Rules */
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt !important;
+  }
+
+  /* Hide navigation, headers, sidebars and action buttons */
+  aside,
+  header,
+  nav,
+  .no-print,
+  button,
+  .sticky {
+    display: none !important;
+  }
+
+  /* Container taking full page */
+  .lg\:pl-64 {
+    padding-left: 0 !important;
+  }
+
+  main {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  #printable-report {
+    display: block !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Ensure sharp contrast and no colored ink bleed */
+  table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+  }
+
+  th, td {
+    border: 1px solid #cbd5e1 !important;
+    padding: 6px 8px !important;
+  }
+
+  /* Page break rules */
+  .page-break {
+    page-break-before: always;
+  }
+}

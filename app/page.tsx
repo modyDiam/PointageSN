@@ -30,6 +30,7 @@ import { SummaryModal } from "@/components/SummaryModal";
 import { ImportModal } from "@/components/ImportModal";
 import { SettingsModal } from "@/components/SettingsModal";
 import { MonthlyRegisterView } from "@/components/MonthlyRegisterView";
+import { ReportsManagementView } from "@/components/ReportsManagementView";
 import { ArrowLeft } from "lucide-react";
 
 const STORAGE_KEY_STUDENTS = "pointagesn_students_v3";
@@ -547,6 +548,33 @@ export default function PointageSNApp() {
                 onResetMonthlyHistory={handleResetMonthlyHistory}
                 onShowToast={showToast}
                 schoolName={settings.schoolName}
+              />
+            </div>
+          )}
+
+          {/* VIEW 5: RAPPORTS ADMINISTRATIFS & EXPORT PDF */}
+          {activeView === "REPORTS" && (
+            <div className="space-y-3.5 animate-fade-in">
+              <div className="no-print flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveView("DASHBOARD")}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200/80 px-3 py-1.5 rounded-xl transition shadow-2xs"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Retour au Dashboard</span>
+                </button>
+              </div>
+
+              <ReportsManagementView
+                students={students}
+                availableClasses={availableClasses}
+                attendance={attendance}
+                historySessions={historySessions}
+                schoolName={settings.schoolName}
+                selectedSlot={selectedSlot}
+                currentDateFormatted={currentDateFormatted}
+                onShowToast={showToast}
               />
             </div>
           )}

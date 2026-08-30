@@ -247,17 +247,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
               )}
             </button>
 
-            {/* Rapport de Séance */}
+            {/* Rapports & Documents */}
             <button
               type="button"
               onClick={() => {
-                onOpenReport();
+                onNavigate("REPORTS");
                 onCloseMobile();
               }}
-              className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all border-l-2 border-transparent"
+              className={`w-full flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-xl transition-all ${
+                currentView === "REPORTS"
+                  ? "bg-slate-100 text-slate-900 font-bold border-l-2 border-navy-900 shadow-2xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border-l-2 border-transparent"
+              }`}
             >
-              <FileText className="w-4 h-4 text-slate-400" />
-              <span>Rapport de séance</span>
+              <div className="flex items-center gap-2.5">
+                <FileText
+                  className={`w-4 h-4 ${
+                    currentView === "REPORTS" ? "text-brand-600" : "text-slate-400"
+                  }`}
+                />
+                <span>Rapports & Export PDF</span>
+              </div>
+              <span className="text-[10px] px-1.5 py-0.2 rounded bg-slate-200/60 text-slate-600 font-mono">
+                A4
+              </span>
             </button>
           </div>
 

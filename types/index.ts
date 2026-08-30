@@ -43,7 +43,7 @@ export interface StudentMonthlyStat {
   totalSessions: number;
 }
 
-export type AppView = 'DASHBOARD' | 'ATTENDANCE' | 'REGISTER' | 'STUDENTS';
+export type AppView = 'DASHBOARD' | 'ATTENDANCE' | 'REGISTER' | 'STUDENTS' | 'REPORTS';
 
 export interface ActivityEvent {
   id: string;

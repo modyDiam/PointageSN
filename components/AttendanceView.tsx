@@ -6,7 +6,6 @@ import {
   AttendanceStatus,
   AttendanceRecord,
   ClassStats,
-  SchoolSettings,
 } from "@/types";
 import {
   generateParentWhatsAppLink,
@@ -28,8 +27,8 @@ import {
   RotateCcw,
   CheckCircle2,
   Phone,
-  HelpCircle,
 } from "lucide-react";
+import { Button, Badge, Card, Modal } from "@/components/ui";
 
 interface AttendanceViewProps {
   students: Student[];
@@ -118,17 +117,18 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
     <div className="space-y-3.5 animate-fade-in pb-20">
       
       {/* 1. TOP CONTEXT & NAVIGATION BAR */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col gap-3">
+      <Card className="p-4 sm:p-5 flex flex-col gap-3">
         {/* Top line: Back button + School & Teacher info */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-slate-100 pb-3">
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            size="xs"
             onClick={onBackToDashboard}
-            className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 px-3 py-1.5 rounded-xl transition shadow-2xs self-start"
+            leftIcon={<ArrowLeft className="w-3.5 h-3.5" />}
+            className="self-start"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Tableau de bord</span>
-          </button>
+            Tableau de bord
+          </Button>
 
           <div className="flex items-center gap-3 text-xs text-slate-500 flex-wrap">
             <div className="flex items-center gap-1.5 font-medium">
@@ -138,7 +138,7 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
             <span className="text-slate-300">•</span>
             <div className="flex items-center gap-1">
               <UserCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Surveillant / Professeur en charge</span>
+              <span>Surveillance / Enseignant en charge</span>
             </div>
             <span className="text-slate-300">•</span>
             <div className="flex items-center gap-1">
@@ -185,12 +185,12 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
             Effectif classe : <strong className="text-slate-800">{classStudents.length} élèves</strong>
           </div>
         </div>
-      </div>
+      </Card>
 
       {/* 2. INSTANT LIVE METRIC CARDS */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
         {/* Total */}
-        <div className="bg-white border border-slate-200/90 rounded-2xl p-3 sm:p-3.5 shadow-xs flex items-center justify-between">
+        <Card className="p-3 sm:p-3.5 flex items-center justify-between">
           <div>
             <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
               Total Élèves
@@ -202,10 +202,10 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
           <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200/80 flex items-center justify-center text-slate-600">
             <Building className="w-4 h-4" />
           </div>
-        </div>
+        </Card>
 
         {/* Présents */}
-        <div className="bg-white border border-emerald-200/80 rounded-2xl p-3 sm:p-3.5 shadow-xs flex items-center justify-between bg-emerald-50/15">
+        <Card className="p-3 sm:p-3.5 flex items-center justify-between bg-emerald-50/20 border-emerald-200/80">
           <div>
             <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">
               Présents
@@ -218,12 +218,12 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
             </div>
           </div>
           <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700">
-            <Check className="w-4 h-4 stroke-[3]" />
+            <CheckCircle2 className="w-4 h-4" />
           </div>
-        </div>
+        </Card>
 
         {/* Retards */}
-        <div className="bg-white border border-amber-200/80 rounded-2xl p-3 sm:p-3.5 shadow-xs flex items-center justify-between bg-amber-50/15">
+        <Card className="p-3 sm:p-3.5 flex items-center justify-between bg-amber-50/20 border-amber-200/80">
           <div>
             <div className="text-[11px] font-bold uppercase tracking-wider text-amber-700">
               Retards
@@ -235,10 +235,10 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
           <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
             <Clock className="w-4 h-4" />
           </div>
-        </div>
+        </Card>
 
         {/* Absents */}
-        <div className="bg-white border border-rose-200/80 rounded-2xl p-3 sm:p-3.5 shadow-xs flex items-center justify-between bg-rose-50/15">
+        <Card className="p-3 sm:p-3.5 flex items-center justify-between bg-rose-50/20 border-rose-200/80">
           <div>
             <div className="text-[11px] font-bold uppercase tracking-wider text-rose-700">
               Absents
@@ -248,88 +248,80 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
             </div>
           </div>
           <div className="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-700">
-            <X className="w-4 h-4 stroke-[3]" />
+            <X className="w-4 h-4" />
           </div>
-        </div>
+        </Card>
       </div>
 
-      {/* 3. TOOLBAR (Search & Quick Batch Action) */}
-      <div className="bg-white border border-slate-200/90 rounded-xl p-2.5 sm:p-3 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-        {/* Search input */}
-        <div className="relative flex-1 sm:max-w-md">
+      {/* 3. TOOLBAR (SEARCH + QUICK MARK ALL PRESENT) */}
+      <Card className="p-2.5 sm:p-3 flex items-center justify-between gap-2.5">
+        <div className="relative flex-1 max-w-sm">
           <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder={`Rechercher un élève de ${selectedClass}...`}
+            placeholder="Filtrer un élève de la classe..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-brand-500 focus:bg-white transition"
+            className="w-full bg-slate-50 border border-slate-200/80 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-brand-500 focus:bg-white transition"
           />
         </div>
 
-        {/* Batch buttons */}
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onMarkAllPresent}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200/70 rounded-lg transition active:scale-95 whitespace-nowrap"
-          >
-            <CheckCheck className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Tout marquer Présent</span>
-          </button>
-        </div>
-      </div>
+        <Button
+          variant="secondary"
+          size="xs"
+          onClick={onMarkAllPresent}
+          leftIcon={<CheckCheck className="w-3.5 h-3.5 text-emerald-600" />}
+        >
+          Tous Présents
+        </Button>
+      </Card>
 
-      {/* 4. STUDENT ROLL CALL LIST / TABLE */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
-        
-        {/* Table Header for Desktop */}
+      {/* 4. STUDENTS ROLL CALL LIST / TABLE */}
+      <Card className="overflow-hidden">
+        {/* Table Header */}
         <div className="hidden sm:grid sm:grid-cols-12 gap-3 px-4 py-2.5 bg-slate-50 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
           <div className="sm:col-span-1 text-center">#</div>
-          <div className="sm:col-span-4">Élève & Classe</div>
-          <div className="sm:col-span-3">Tuteur & Téléphone</div>
-          <div className="sm:col-span-3 text-center">Statut de Présence</div>
-          <div className="sm:col-span-1 text-right">Alerte</div>
+          <div className="sm:col-span-4">Élève (Nom & Prénom)</div>
+          <div className="sm:col-span-3">Contact Tuteur</div>
+          <div className="sm:col-span-4 text-center">Pointage du Statut</div>
         </div>
 
-        {/* Rows */}
-        {filteredStudents.length > 0 ? (
-          <div className="divide-y divide-slate-100">
-            {filteredStudents.map((student, idx) => {
-              const status = attendance[student.id] || "PRESENT";
+        {/* Table Rows */}
+        <div className="divide-y divide-slate-100">
+          {filteredStudents.length > 0 ? (
+            filteredStudents.map((student, index) => {
+              const currentStatus = attendance[student.id] || "PRESENT";
               const isAlerted = alertedStudentIds.has(student.id);
+              const initials = `${student.firstName[0]}${student.lastName[0]}`.toUpperCase();
               const whatsappUrl = generateParentWhatsAppLink(
                 student,
-                status,
-                schoolName,
-                absentTemplate,
-                retardTemplate
+                currentStatus,
+                schoolName
               );
-              const initials = `${student.firstName[0]}${student.lastName[0]}`.toUpperCase();
 
               return (
                 <div
                   key={student.id}
                   className={`p-3 sm:px-4 sm:py-3 transition-colors flex flex-col sm:grid sm:grid-cols-12 sm:items-center gap-2.5 sm:gap-3 ${
-                    status === "ABSENT"
-                      ? "bg-rose-50/30 hover:bg-rose-50/45"
-                      : status === "RETARD"
-                      ? "bg-amber-50/30 hover:bg-amber-50/45"
-                      : "hover:bg-slate-50/80"
+                    currentStatus === "ABSENT"
+                      ? "bg-rose-50/25"
+                      : currentStatus === "RETARD"
+                      ? "bg-amber-50/25"
+                      : "hover:bg-slate-50/70"
                   }`}
                 >
-                  {/* Col 0: Index (Desktop) */}
+                  {/* Col 0: Index */}
                   <div className="hidden sm:block sm:col-span-1 text-center text-xs font-mono text-slate-400">
-                    {idx + 1}
+                    {index + 1}
                   </div>
 
                   {/* Col 1: Élève */}
                   <div className="sm:col-span-4 flex items-center gap-2.5 min-w-0">
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 transition-colors ${
-                        status === "ABSENT"
+                      className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${
+                        currentStatus === "ABSENT"
                           ? "bg-rose-100 text-rose-800 border border-rose-200"
-                          : status === "RETARD"
+                          : currentStatus === "RETARD"
                           ? "bg-amber-100 text-amber-800 border border-amber-200"
                           : "bg-slate-100 text-slate-700 border border-slate-200/80"
                       }`}
@@ -338,35 +330,24 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
                     </div>
 
                     <div className="min-w-0">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="font-bold text-xs sm:text-sm text-slate-900 truncate">
-                          {student.firstName} {student.lastName}
-                        </span>
-                        <span className="px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 text-[10px] font-semibold border border-slate-200/60 shrink-0">
-                          {student.classLevel}
-                        </span>
+                      <div className="font-bold text-xs sm:text-sm text-slate-900 truncate">
+                        {student.firstName} {student.lastName}
                       </div>
 
-                      {/* Mobile parent line */}
-                      <div className="sm:hidden text-[11px] text-slate-500 mt-0.5 truncate">
-                        {student.parentName} •{" "}
-                        <a
-                          href={`tel:+${student.parentPhone}`}
-                          className="hover:underline text-slate-600 font-mono"
-                        >
-                          {formatPhoneDisplay(student.parentPhone)}
-                        </a>
+                      {/* Mobile parent display */}
+                      <div className="sm:hidden text-[11px] text-slate-500 mt-0.5">
+                        Tuteur : {student.parentName} ({formatPhoneDisplay(student.parentPhone)})
                       </div>
                     </div>
                   </div>
 
-                  {/* Col 2: Tuteur & Téléphone (Desktop) */}
+                  {/* Col 2: Tuteur (Desktop) */}
                   <div className="hidden sm:block sm:col-span-3 text-xs">
                     <div className="text-slate-800 font-medium truncate">
                       {student.parentName}
                     </div>
                     <div className="flex items-center gap-1 text-[11px] text-slate-500 font-mono mt-0.5">
-                      <Phone className="w-3 h-3 text-slate-400 shrink-0" />
+                      <Phone className="w-3 h-3 text-slate-400" />
                       <a
                         href={`tel:+${student.parentPhone}`}
                         className="hover:text-brand-600 transition hover:underline"
@@ -376,192 +357,158 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
                     </div>
                   </div>
 
-                  {/* Col 3: Tactile 3-Segment Button (Big targets) */}
-                  <div className="sm:col-span-3">
-                    <div className="bg-slate-100 p-1 rounded-xl grid grid-cols-3 gap-1 border border-slate-200/70">
-                      {/* Présent Button */}
+                  {/* Col 3: Tactile 3-Segment Button Selector + WhatsApp */}
+                  <div className="sm:col-span-4 flex items-center justify-between sm:justify-end gap-2">
+                    {/* 3-State Segmented Switch */}
+                    <div className="inline-flex rounded-xl bg-slate-100 p-0.5 border border-slate-200/90 text-xs font-bold shadow-2xs">
+                      {/* 1. PRÉSENT */}
                       <button
                         type="button"
                         onClick={() => onStatusChange(student.id, "PRESENT")}
-                        className={`h-9 sm:h-8 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1 active:scale-95 ${
-                          status === "PRESENT"
+                        className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 active:scale-95 ${
+                          currentStatus === "PRESENT"
                             ? "bg-emerald-600 text-white shadow-xs"
-                            : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                            : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
                         }`}
                       >
-                        <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                        <span>Présent</span>
+                        <Check className="w-3.5 h-3.5" />
+                        <span className="hidden xs:inline">Présent</span>
                       </button>
 
-                      {/* Retard Button */}
+                      {/* 2. RETARD */}
                       <button
                         type="button"
                         onClick={() => onStatusChange(student.id, "RETARD")}
-                        className={`h-9 sm:h-8 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1 active:scale-95 ${
-                          status === "RETARD"
+                        className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 active:scale-95 ${
+                          currentStatus === "RETARD"
                             ? "bg-amber-500 text-white shadow-xs"
-                            : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                            : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
                         }`}
                       >
                         <Clock className="w-3.5 h-3.5" />
-                        <span>Retard</span>
+                        <span className="hidden xs:inline">Retard</span>
                       </button>
 
-                      {/* Absent Button */}
+                      {/* 3. ABSENT */}
                       <button
                         type="button"
                         onClick={() => onStatusChange(student.id, "ABSENT")}
-                        className={`h-9 sm:h-8 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1 active:scale-95 ${
-                          status === "ABSENT"
+                        className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 active:scale-95 ${
+                          currentStatus === "ABSENT"
                             ? "bg-rose-600 text-white shadow-xs"
-                            : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                            : "text-slate-600 hover:text-slate-900 hover:bg-white/50"
                         }`}
                       >
-                        <X className="w-3.5 h-3.5 stroke-[2.5]" />
-                        <span>Absent</span>
+                        <X className="w-3.5 h-3.5" />
+                        <span className="hidden xs:inline">Absent</span>
                       </button>
                     </div>
-                  </div>
 
-                  {/* Col 4: Secondary WhatsApp Button */}
-                  <div className="sm:col-span-1 flex items-center sm:justify-end">
-                    {status === "ABSENT" || status === "RETARD" ? (
+                    {/* WhatsApp Alert Button (Only for Absent or Retard) */}
+                    {currentStatus !== "PRESENT" && (
                       <a
                         href={whatsappUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={() => handleWhatsAppClick(student.id)}
-                        className={`w-full sm:w-auto inline-flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-white transition-all shadow-2xs active:scale-95 whitespace-nowrap ${
+                        className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition shadow-2xs active:scale-95 ${
                           isAlerted
-                            ? "bg-emerald-700 hover:bg-emerald-800"
-                            : "bg-[#25D366] hover:bg-[#20bd5a]"
+                            ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                            : "bg-[#25D366] hover:bg-[#20bd5a] text-white"
                         }`}
-                        title="Envoyer la notification WhatsApp au parent"
+                        title="Envoyer une alerte WhatsApp au tuteur légal"
                       >
-                        <MessageSquare className="w-3 h-3 fill-current shrink-0" />
-                        <span className="sm:hidden">{isAlerted ? "WhatsApp envoyé ↗" : "Alerter parent ↗"}</span>
-                        <span className="hidden sm:inline">↗</span>
+                        <MessageSquare className="w-3.5 h-3.5 fill-current" />
+                        <span className="hidden md:inline">
+                          {isAlerted ? "Envoyé ✓" : "WhatsApp"}
+                        </span>
                       </a>
-                    ) : (
-                      <span className="hidden sm:inline-block text-[11px] text-slate-300 italic">
-                        —
-                      </span>
                     )}
                   </div>
                 </div>
               );
-            })}
-          </div>
-        ) : (
-          <div className="p-8 text-center text-xs text-slate-500">
-            Aucun élève trouvé pour cette recherche.
-          </div>
-        )}
-      </div>
-
-      {/* 5. STICKY BOTTOM SESSION CLOSING BAR */}
-      <div className="fixed bottom-4 left-0 right-0 lg:left-64 z-30 px-4 sm:px-6 pointer-events-none">
-        <div className="max-w-6xl mx-auto pointer-events-auto">
-          <div className="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-3 sm:px-5 sm:py-3.5 shadow-modal flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            {/* Live context recap */}
-            <div className="flex items-center gap-2.5 text-xs">
-              <span className="font-extrabold text-slate-900">
-                Pointage {selectedClass} :
-              </span>
-              <span className="px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold">
-                {classStats.present} présents ({classStats.attendanceRate}%)
-              </span>
-              {classStats.absent > 0 && (
-                <span className="px-2 py-0.5 rounded-md bg-rose-50 border border-rose-200 text-rose-800 font-bold">
-                  {classStats.absent} absent{classStats.absent > 1 ? "s" : ""}
-                </span>
-              )}
-              {classStats.retard > 0 && (
-                <span className="px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-amber-800 font-bold">
-                  {classStats.retard} retard{classStats.retard > 1 ? "s" : ""}
-                </span>
-              )}
+            })
+          ) : (
+            <div className="p-8 text-center text-slate-400 text-xs">
+              Aucun élève ne correspond à votre filtre "{searchQuery}".
             </div>
+          )}
+        </div>
+      </Card>
 
-            {/* Action button */}
-            <button
-              type="button"
-              onClick={() => setIsConfirmCloseOpen(true)}
-              className="px-5 py-2.5 bg-navy-900 hover:bg-navy-800 text-white font-bold text-xs sm:text-sm rounded-xl shadow-xs transition-all active:scale-95 flex items-center justify-center gap-2 shrink-0"
-            >
-              <Copy className="w-4 h-4" />
-              <span>Clôturer la séance & Copier le rapport</span>
-            </button>
+      {/* 5. STICKY BOTTOM SUMMARY BAR & CLOSURE BUTTON */}
+      <div className="fixed bottom-0 left-0 right-0 lg:left-64 bg-white/95 backdrop-blur-sm border-t border-slate-200 px-4 py-3 z-30 shadow-lg flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 text-xs">
+          <div className="hidden sm:flex items-center gap-2">
+            <span className="font-bold text-slate-800">Classe {selectedClass}</span>
+            <span className="text-slate-300">•</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="success">{classStats.present} Présents</Badge>
+            <Badge variant="warning">{classStats.retard} Retards</Badge>
+            <Badge variant="danger">{classStats.absent} Absents</Badge>
           </div>
         </div>
-      </div>
 
-      {/* 6. CONFIRMATION MODAL BEFORE CLOSING */}
-      {isConfirmCloseOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs"
+        <Button
+          variant="primary"
+          size="md"
+          onClick={() => setIsConfirmCloseOpen(true)}
+          leftIcon={<CheckCircle2 className="w-4 h-4 text-emerald-400" />}
         >
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 max-w-md w-full shadow-modal animate-scale-up space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-navy-900 flex items-center justify-center text-white font-bold text-xs shadow-2xs">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              </div>
-              <div>
-                <h3 className="font-bold text-sm text-slate-900">
-                  Clôturer l'appel • Classe {selectedClass} ?
-                </h3>
-                <p className="text-[11px] text-slate-500">
-                  {schoolName} • {currentDateFormatted} ({selectedSlot})
-                </p>
-              </div>
+          Clôturer & Transférer
+        </Button>
+      </div>
+
+      {/* 6. CONFIRMATION DIALOG MODAL */}
+      <Modal
+        isOpen={isConfirmCloseOpen}
+        onClose={() => setIsConfirmCloseOpen(false)}
+        title="Clôturer le pointage de séance ?"
+        description={`Classe ${selectedClass} • ${schoolName}`}
+        icon={<AlertTriangle className="w-4 h-4 text-amber-500" />}
+        maxWidth="md"
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsConfirmCloseOpen(false)}
+            >
+              Reprendre l'appel
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleProceedClose}
+              leftIcon={<CheckCircle2 className="w-3.5 h-3.5" />}
+            >
+              Confirmer & Archiver la séance
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-3 text-xs">
+          <p className="text-slate-600 leading-relaxed">
+            Vous êtes sur le point de valider définitivement la liste des présences pour le créneau en cours.
+          </p>
+
+          <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3 grid grid-cols-3 gap-2 text-center">
+            <div>
+              <div className="text-[10px] uppercase font-bold text-slate-400">Présents</div>
+              <div className="text-base font-black text-emerald-700">{classStats.present}</div>
             </div>
-
-            {/* Recap */}
-            <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-3 text-xs space-y-1.5">
-              <div className="flex justify-between font-medium">
-                <span className="text-slate-600">Effectif total :</span>
-                <strong className="text-slate-900">{classStats.total} élève(s)</strong>
-              </div>
-              <div className="flex justify-between font-medium">
-                <span className="text-emerald-700">Élèves présents :</span>
-                <strong className="text-emerald-800">{classStats.present} ({classStats.attendanceRate}%)</strong>
-              </div>
-              <div className="flex justify-between font-medium">
-                <span className="text-rose-700">Élèves absents :</span>
-                <strong className="text-rose-800">{classStats.absent}</strong>
-              </div>
-              <div className="flex justify-between font-medium">
-                <span className="text-amber-700">Arrivées tardives :</span>
-                <strong className="text-amber-800">{classStats.retard}</strong>
-              </div>
+            <div>
+              <div className="text-[10px] uppercase font-bold text-slate-400">Retards</div>
+              <div className="text-base font-black text-amber-600">{classStats.retard}</div>
             </div>
-
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Le rapport officiel sera copié dans le presse-papiers et la séance sera enregistrée dans le registre du mois.
-            </p>
-
-            <div className="flex items-center justify-end gap-2 pt-1 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setIsConfirmCloseOpen(false)}
-                className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition"
-              >
-                Vérifier encore
-              </button>
-              <button
-                type="button"
-                onClick={handleProceedClose}
-                className="px-4 py-1.5 text-xs font-bold bg-navy-900 hover:bg-navy-800 text-white rounded-lg transition shadow-xs flex items-center gap-1.5"
-              >
-                <Check className="w-3.5 h-3.5" />
-                <span>Confirmer & Clôturer</span>
-              </button>
+            <div>
+              <div className="text-[10px] uppercase font-bold text-slate-400">Absents</div>
+              <div className="text-base font-black text-rose-600">{classStats.absent}</div>
             </div>
           </div>
         </div>
-      )}
+      </Modal>
 
     </div>
   );

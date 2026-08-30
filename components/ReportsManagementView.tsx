@@ -5,7 +5,6 @@ import {
   Student,
   AttendanceRecord,
   AttendanceSession,
-  AttendanceStatus,
 } from "@/types";
 import {
   FileText,
@@ -13,25 +12,14 @@ import {
   Download,
   Copy,
   Share2,
-  Calendar,
-  Building,
-  CheckCircle2,
-  UserX,
-  Clock,
-  Search,
-  Filter,
   Check,
-  Phone,
-  User,
-  ShieldCheck,
   ChevronRight,
 } from "lucide-react";
 import {
   generateDirectionReport,
-  generateParentWhatsAppLink,
   formatPhoneDisplay,
 } from "@/utils/whatsapp";
-import { exportMonthlyRegisterCSV } from "@/utils/csv";
+import { Button, Badge, Card } from "@/components/ui";
 
 interface ReportsManagementViewProps {
   students: Student[];
@@ -178,7 +166,7 @@ export const ReportsManagementView: React.FC<ReportsManagementViewProps> = ({
     <div className="space-y-4 animate-fade-in pb-16">
       
       {/* 1. TOP HEADER & CONTROLS (Hidden on Print) */}
-      <div className="no-print bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <Card className="no-print p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-navy-900 flex items-center justify-center text-white font-bold text-xs shadow-2xs">
@@ -198,51 +186,51 @@ export const ReportsManagementView: React.FC<ReportsManagementViewProps> = ({
         {/* Global Action Buttons */}
         <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
           {/* Print / PDF button */}
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            size="sm"
             onClick={handlePrint}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-navy-900 hover:bg-navy-800 text-white font-bold text-xs rounded-xl shadow-xs transition active:scale-95"
+            leftIcon={<Printer className="w-3.5 h-3.5" />}
             title="Imprimer ou enregistrer en PDF au format officiel A4"
           >
-            <Printer className="w-3.5 h-3.5" />
-            <span>Imprimer / PDF</span>
-          </button>
+            Imprimer / PDF
+          </Button>
 
           {/* Export Excel button */}
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={handleExportCSV}
-            className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200/90 font-semibold text-xs rounded-xl shadow-2xs transition active:scale-95"
+            leftIcon={<Download className="w-3.5 h-3.5 text-brand-600" />}
           >
-            <Download className="w-3.5 h-3.5 text-brand-600" />
-            <span>Export Excel</span>
-          </button>
+            Export Excel
+          </Button>
 
           {/* Copy button */}
-          <button
-            type="button"
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={handleCopyText}
-            className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200/90 font-semibold text-xs rounded-xl shadow-2xs transition active:scale-95"
+            leftIcon={copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
-            <span>{copied ? "Copié !" : "Copier"}</span>
-          </button>
+            {copied ? "Copié !" : "Copier"}
+          </Button>
 
           {/* WhatsApp share button */}
           <a
             href={whatsappDirectShareUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs rounded-xl shadow-2xs transition active:scale-95"
+            className="inline-flex items-center gap-1.5 px-3 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-xs rounded-xl shadow-2xs transition active:scale-95"
           >
             <Share2 className="w-3.5 h-3.5" />
             <span>WhatsApp</span>
           </a>
         </div>
-      </div>
+      </Card>
 
       {/* 2. FILTERS BAR (Hidden on Print) */}
-      <div className="no-print bg-white border border-slate-200/90 rounded-2xl p-3 sm:p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <Card className="no-print p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         {/* Class Filter Tabs */}
         <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 bg-slate-100/90 p-1 rounded-xl border border-slate-200/60 max-w-full">
           {availableClasses.map((cls) => {
@@ -278,19 +266,17 @@ export const ReportsManagementView: React.FC<ReportsManagementViewProps> = ({
             <option value="PRESENT">Présents uniquement ({sessionStats.present})</option>
           </select>
         </div>
-      </div>
+      </Card>
 
       {/* 3. DUAL COLUMN: SESSIONS LIST (LEFT) + PRINTABLE A4 REPORT (RIGHT) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         
         {/* Left Column: Sessions History Switcher (Hidden on Print) */}
         <div className="no-print lg:col-span-4 space-y-2.5">
-          <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-xs space-y-3">
+          <Card className="p-4 space-y-3">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center justify-between">
               <span>Séances & Historique</span>
-              <span className="text-[10px] bg-slate-100 px-1.5 py-0.2 rounded text-slate-600">
-                {historySessions.length + 1} séance(s)
-              </span>
+              <Badge variant="neutral">{historySessions.length + 1} séance(s)</Badge>
             </h3>
 
             {/* Live active session option */}
@@ -352,7 +338,7 @@ export const ReportsManagementView: React.FC<ReportsManagementViewProps> = ({
                 Aucune séance archivée antérieure. Clôturez un pointage pour enrichir l'historique.
               </p>
             )}
-          </div>
+          </Card>
         </div>
 
         {/* Right Column: OFFICIAL PRINTABLE A4 ADMINISTRATIVE SHEET */}

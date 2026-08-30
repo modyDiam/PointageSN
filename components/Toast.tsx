@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { CheckCircle2, Info, AlertTriangle, X } from "lucide-react";
 
-interface ToastProps {
+export interface ToastProps {
   message: string;
   type?: "success" | "info" | "warning";
   onClose: () => void;
@@ -14,27 +14,36 @@ export const Toast: React.FC<ToastProps> = ({
   message,
   type = "success",
   onClose,
-  duration = 3000,
+  duration = 3200,
 }) => {
+  const [isVisible, setIsVisible] = useState(true);
+
   useEffect(() => {
     const timer = setTimeout(() => {
-      onClose();
+      setIsVisible(false);
+      setTimeout(onClose, 200); // Allow fade-out animation
     }, duration);
     return () => clearTimeout(timer);
   }, [duration, onClose]);
 
   const styles = {
     success: {
-      bg: "bg-white border-emerald-200 text-slate-800 shadow-lg shadow-emerald-500/10",
-      icon: <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />,
+      border: "border-emerald-200/90",
+      dot: "bg-emerald-500",
+      icon: <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />,
+      badge: "bg-emerald-50 text-emerald-800",
     },
     info: {
-      bg: "bg-white border-blue-200 text-slate-800 shadow-lg shadow-blue-500/10",
-      icon: <Info className="w-5 h-5 text-blue-600 shrink-0" />,
+      border: "border-blue-200/90",
+      dot: "bg-brand-600",
+      icon: <Info className="w-4 h-4 text-brand-600 shrink-0" />,
+      badge: "bg-blue-50 text-brand-800",
     },
     warning: {
-      bg: "bg-white border-amber-200 text-slate-800 shadow-lg shadow-amber-500/10",
-      icon: <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />,
+      border: "border-amber-200/90",
+      dot: "bg-amber-500",
+      icon: <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />,
+      badge: "bg-amber-50 text-amber-800",
     },
   };
 
@@ -42,16 +51,29 @@ export const Toast: React.FC<ToastProps> = ({
     <div
       role="alert"
       aria-live="assertive"
-      className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl border backdrop-blur-md transition-all duration-300 animate-fade-in ${styles[type].bg}`}
+      className={`fixed top-4 right-4 sm:top-5 sm:right-6 z-50 flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white border ${
+        styles[type].border
+      } shadow-modal transition-all duration-200 ${
+        isVisible
+          ? "opacity-100 translate-y-0 scale-100"
+          : "opacity-0 -translate-y-2 scale-95"
+      }`}
     >
-      {styles[type].icon}
-      <p className="text-sm font-medium text-slate-800">{message}</p>
+      <div className="flex items-center gap-2 min-w-0">
+        {styles[type].icon}
+        <p className="text-xs font-bold text-slate-900 truncate">{message}</p>
+      </div>
+
       <button
-        onClick={onClose}
-        className="p-1 text-slate-400 hover:text-slate-700 rounded-lg transition-colors ml-2"
+        type="button"
+        onClick={() => {
+          setIsVisible(false);
+          setTimeout(onClose, 150);
+        }}
+        className="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors ml-1"
         aria-label="Fermer la notification"
       >
-        <X className="w-4 h-4" />
+        <X className="w-3.5 h-3.5" />
       </button>
     </div>
   );

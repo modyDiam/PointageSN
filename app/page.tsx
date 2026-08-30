@@ -31,6 +31,7 @@ import { ImportModal } from "@/components/ImportModal";
 import { SettingsModal } from "@/components/SettingsModal";
 import { MonthlyRegisterView } from "@/components/MonthlyRegisterView";
 import { ReportsManagementView } from "@/components/ReportsManagementView";
+import { Skeleton } from "@/components/ui";
 import { ArrowLeft } from "lucide-react";
 
 const STORAGE_KEY_STUDENTS = "pointagesn_students_v3";
@@ -452,23 +453,34 @@ export default function PointageSNApp() {
         {/* DYNAMIC VIEW ROUTER */}
         <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-5 sm:px-6 space-y-4">
           
-          {/* VIEW 1: DASHBOARD PRINCIPAL */}
-          {activeView === "DASHBOARD" && (
-            <DashboardView
-              students={students}
-              availableClasses={availableClasses}
-              attendance={attendance}
-              historySessions={historySessions}
-              schoolName={settings.schoolName}
-              selectedSlot={selectedSlot}
-              currentDateFormatted={currentDateFormatted}
-              onNavigate={setActiveView}
-              onSelectClassAndCall={handleSelectClassAndCall}
-              onOpenImport={() => setIsImportOpen(true)}
-              onOpenSettings={() => setIsSettingsOpen(true)}
-              onOpenReport={() => setIsSummaryOpen(true)}
-            />
-          )}
+          {!isLoadedFromStorage ? (
+            <div className="space-y-4 animate-pulse">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+                {[1, 2, 3, 4].map((i) => (
+                  <Skeleton key={i} variant="card" className="h-28" />
+                ))}
+              </div>
+              <Skeleton variant="card" className="h-64" />
+            </div>
+          ) : (
+            <>
+              {/* VIEW 1: DASHBOARD PRINCIPAL */}
+              {activeView === "DASHBOARD" && (
+                <DashboardView
+                  students={students}
+                  availableClasses={availableClasses}
+                  attendance={attendance}
+                  historySessions={historySessions}
+                  schoolName={settings.schoolName}
+                  selectedSlot={selectedSlot}
+                  currentDateFormatted={currentDateFormatted}
+                  onNavigate={setActiveView}
+                  onSelectClassAndCall={handleSelectClassAndCall}
+                  onOpenImport={() => setIsImportOpen(true)}
+                  onOpenSettings={() => setIsSettingsOpen(true)}
+                  onOpenReport={() => setIsSummaryOpen(true)}
+                />
+              )}
 
           {/* VIEW 2: FAIRE L'APPEL (EXPÉRIENCE POINTAGE) */}
           {activeView === "ATTENDANCE" && (
@@ -577,6 +589,8 @@ export default function PointageSNApp() {
                 onShowToast={showToast}
               />
             </div>
+          )}
+            </>
           )}
 
         </main>

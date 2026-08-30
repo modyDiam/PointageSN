@@ -65,9 +65,18 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
   retardTemplate,
   onShowToast,
 }) => {
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("" );
   const [isConfirmCloseOpen, setIsConfirmCloseOpen] = useState<boolean>(false);
   const [alertedStudentIds, setAlertedStudentIds] = useState<Set<string>>(new Set());
+  const [lastUpdatedStudentId, setLastUpdatedStudentId] = useState<string | null>(null);
+
+  const handleStatusUpdate = (studentId: string, status: AttendanceStatus) => {
+    onStatusChange(studentId, status);
+    setLastUpdatedStudentId(studentId);
+    setTimeout(() => {
+      setLastUpdatedStudentId((current) => (current === studentId ? null : current));
+    }, 800);
+  };
 
   // Filter students for active class
   const classStudents = useMemo(() => {
@@ -299,11 +308,15 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
                 schoolName
               );
 
+              const isRecentlyUpdated = lastUpdatedStudentId === student.id;
+
               return (
                 <div
                   key={student.id}
-                  className={`p-3 sm:px-4 sm:py-3 transition-colors flex flex-col sm:grid sm:grid-cols-12 sm:items-center gap-2.5 sm:gap-3 ${
-                    currentStatus === "ABSENT"
+                  className={`p-3 sm:px-4 sm:py-3 transition-all duration-300 flex flex-col sm:grid sm:grid-cols-12 sm:items-center gap-2.5 sm:gap-3 ${
+                    isRecentlyUpdated
+                      ? "ring-2 ring-navy-900/20 bg-slate-100"
+                      : currentStatus === "ABSENT"
                       ? "bg-rose-50/25"
                       : currentStatus === "RETARD"
                       ? "bg-amber-50/25"
@@ -318,7 +331,9 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
                   {/* Col 1: Élève */}
                   <div className="sm:col-span-4 flex items-center gap-2.5 min-w-0">
                     <div
-                      className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${
+                      className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 transition-transform ${
+                        isRecentlyUpdated ? "scale-110" : ""
+                      } ${
                         currentStatus === "ABSENT"
                           ? "bg-rose-100 text-rose-800 border border-rose-200"
                           : currentStatus === "RETARD"
@@ -330,8 +345,15 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
                     </div>
 
                     <div className="min-w-0">
-                      <div className="font-bold text-xs sm:text-sm text-slate-900 truncate">
-                        {student.firstName} {student.lastName}
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-xs sm:text-sm text-slate-900 truncate">
+                          {student.firstName} {student.lastName}
+                        </span>
+                        {isRecentlyUpdated && (
+                          <span className="text-[10px] text-emerald-700 font-bold animate-fade-in">
+                            ✓ Enregistré
+                          </span>
+                        )}
                       </div>
 
                       {/* Mobile parent display */}
@@ -364,7 +386,7 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
                       {/* 1. PRÉSENT */}
                       <button
                         type="button"
-                        onClick={() => onStatusChange(student.id, "PRESENT")}
+                        onClick={() => handleStatusUpdate(student.id, "PRESENT")}
                         className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 active:scale-95 ${
                           currentStatus === "PRESENT"
                             ? "bg-emerald-600 text-white shadow-xs"
@@ -378,7 +400,7 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
                       {/* 2. RETARD */}
                       <button
                         type="button"
-                        onClick={() => onStatusChange(student.id, "RETARD")}
+                        onClick={() => handleStatusUpdate(student.id, "RETARD")}
                         className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 active:scale-95 ${
                           currentStatus === "RETARD"
                             ? "bg-amber-500 text-white shadow-xs"
@@ -392,7 +414,7 @@ export const AttendanceView: React.FC<AttendanceViewProps> = ({
                       {/* 3. ABSENT */}
                       <button
                         type="button"
-                        onClick={() => onStatusChange(student.id, "ABSENT")}
+                        onClick={() => handleStatusUpdate(student.id, "ABSENT")}
                         className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 active:scale-95 ${
                           currentStatus === "ABSENT"
                             ? "bg-rose-600 text-white shadow-xs"

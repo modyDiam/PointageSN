@@ -41,3 +41,15 @@ export interface StudentMonthlyStat {
   presentCount: number;
   totalSessions: number;
 }
+
+export type AppView = 'DASHBOARD' | 'ATTENDANCE' | 'REGISTER';
+
+export interface ActivityEvent {
+  id: string;
+  type: 'SESSION_CLOSED' | 'WHATSAPP_ALERT' | 'STUDENTS_IMPORTED' | 'SETTINGS_UPDATED';
+  title: string;
+  description: string;
+  timestamp: number;
+  badgeText?: string;
+  badgeType?: 'success' | 'warning' | 'danger' | 'neutral';
+}

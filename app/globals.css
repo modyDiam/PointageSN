@@ -16,14 +16,19 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Modern clean scrollbar */
+/* Tabular figures for alignment of metrics */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Clean minimal scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #f8fafc;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -36,6 +41,6 @@ body {
 }
 
 ::selection {
-  background-color: #1d72fe;
+  background-color: #0f172a;
   color: #ffffff;
 }
